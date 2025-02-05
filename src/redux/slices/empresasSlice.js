@@ -23,7 +23,7 @@ export const fetchAddEmpresaAsync = createAsyncThunk("auth/fetchAddEmpresaAsync"
   } = getState();
   const res = await (formAction === "add"
     ? createEmpresa(props)
-    : updateEmpresa({ ...props, id }));
+    : updateEmpresa({ ...props}, id ));
   return res;
 });
 
@@ -48,8 +48,10 @@ export const EmpresaSlice = createSlice({
       state.formAction = action.payload;
     },
     setEmpresaToEdit: (state, action) => {
+      
         state.id = action.payload.id;
-        state.empresa = action.payload.empresa
+        console.log(action.payload)
+        state.empresa = action.payload
       state.formAction = "update";
     },
     setShowModal: (state, action) => {
@@ -64,7 +66,7 @@ export const EmpresaSlice = createSlice({
       .addCase(
         fetchGetEmpresasAsync.fulfilled,
         (state, action) => {
-          state.empresa = action.payload;
+          state.empresas = action.payload;
           state.statusEmpresas = "success";
         }
       )
@@ -90,15 +92,16 @@ export const { setFormAction, setEmpresaToEdit, setShowModal } =
 // Definición de selectores
 export const getEmpresaFields = (state) => {
   return {
-    nombre_empresa: state.empresa.empresa.nombre_Empresa,
+    nombre_empresa: state.empresa.empresa.nombre_empresa,
     nit:state.empresa.empresa.nit,
+    dv:state.empresa.empresa.dv,
     ciudad:state.empresa.empresa.ciudad,
     direccion: state.empresa.empresa.direccion,
     telefono: state.empresa.empresa.telefono,
     correo: state.empresa.empresa.correo,
     contacto: state.empresa.empresa.contacto,
     tiendas_vinculadas: state.empresa.empresa.tiendas_vinculadas,
-    created_at: state.empresa.precio,
+    created_at: state.empresa.empresa.created_at,
   };
 };
 export const getEmpresa = (state) => state.empresa.empresa;
@@ -109,14 +112,14 @@ export const getStatusEmpresa = (state) =>
   state.empresa.statusEmpresas;
 export const getEmpresasQuery = (state , query) => {
   if (query) {
-    return state.empresa.empresa.filter(
+    return state.empresa.empresas.filter(
       (d) =>
         d.nombre_empresa.toLowerCase().includes(query) ||
         d.ciudad.toLowerCase().includes(query) ||
         d.centro_comercial.toLowerCase().includes(query) 
     );
   } else {
-    return state.empresa.empresa;
+    return state.empresa.empresas;
   }
 };
 export const getStatusModal = (state) => state.empresa.statusModal;

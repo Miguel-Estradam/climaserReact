@@ -19,7 +19,7 @@ import { use } from "react";
 import { fetchGetSedesAsync, getStatusSedes } from "@/redux/slices/sedesSlice";
 import ProveedorModal from "@/components/modals/admin/proveedorModal";
 
-export function ProveedoresA() {
+export function ResportesPageA() {
 
   const dispatch = useDispatch();
 
@@ -46,15 +46,13 @@ export function ProveedoresA() {
         <Card>
           <CardHeader variant="gradient" color="indigo" className="mb-8 p-6 flex justify-between items-center">
             <Typography className="text-2xl" variant="h6" color="white">
-              Proveedores
+              Reportes
             </Typography>
-           { statusSedes == "success" && <ProveedorModal/>}
+            <Button color="white">{ statusSedes == "success" && <ProveedorModal/>}</Button>
           </CardHeader>
           {statusPreveedores == "success" ?
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
 
-              <TableProveedores>
-              </TableProveedores>
             </CardBody>
 
             : <div className=" w-full h-full min-h-[200px] flex justify-center items-center">
@@ -65,4 +63,4 @@ export function ProveedoresA() {
   );
 }
 
-export default ProveedoresA;
+export default ResportesPageA;

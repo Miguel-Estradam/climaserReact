@@ -7,7 +7,7 @@ import { HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { formatDate } from '@/hooks/formatDate';
 const TableSedes = () => {
 
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
 
     const [query, setQuery] = useState("");
     const sort = 5;

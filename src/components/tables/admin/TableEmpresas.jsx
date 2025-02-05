@@ -1,9 +1,9 @@
-import { Card, CardBody, CardHeader, Chip, Input, Typography } from '@material-tailwind/react';
+import { Button, Input, Menu, MenuHandler, MenuItem, MenuList, Typography } from '@material-tailwind/react';
 import React, { useEffect, useRef, useState } from 'react'
 import Pagination from '@/share/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
-import { getEmpresasQuery } from '@/redux/slices/empresasSlice';
-import { HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { getEmpresasQuery, setEmpresaToEdit, setFormAction, setShowModal } from '@/redux/slices/empresasSlice';
+import { EllipsisVerticalIcon, HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
 
 import { formatDate } from '@/hooks/formatDate';
 const TableEmpresas = () => {
@@ -41,7 +41,7 @@ const TableEmpresas = () => {
             <table className="w-full min-w-[640px] table-auto">
                 <thead>
                     <tr>
-                        {["Nombre","Nit", "Ciudad","direccion", "Telefono", "Tiendas vinculadas", "Fecha", "Correo","Contacto", ""].map((el) => (
+                        {["Nombre","Nit", "Ciudad","direccion", "Telefono", "Tiendas vinculadas", "Fecha", "Correo","Contacto", "opciones"].map((el) => (
                             <th
                                 key={el}
                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -58,70 +58,79 @@ const TableEmpresas = () => {
                 </thead>
                 <tbody>
                     {data.map(
-                        ({ nombre_empresa, nit, ciudad,direccion, telefono, tiendas_vinculadas, created_at, correo, contacto }, key) => {
+                        (empresa, key) => {
                             const className = `py-3 px-5 ${key === empresas.length - 1
                                 ? ""
                                 : "border-b border-blue-gray-50"
                                 }`;
 
                             return (
-                                <tr key={nombre_empresa}>
+                                <tr key={empresa.nombre_empresa}>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {nombre_empresa}
-                                        </Typography>
-                                    </td>
-                                    <td className={className}>
-                                        <Typography className="text-base font-normal text-blue-gray-600">
-                                            {nit}
-                                        </Typography>
-                                    </td>
-                                    <td className={className}>
-                                        <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {ciudad}
-                                        </Typography>
-                                    </td>
-                                    <td className={className}>
-                                        <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {direccion}
-                                        </Typography>
-                                    </td>
-                                    <td className={className}>
-                                        <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {telefono}
+                                            {empresa.nombre_empresa}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {tiendas_vinculadas.length}
+                                            {empresa.nit +'-'+empresa.dv}
+                                        </Typography>
+                                    </td>
+                                    <td className={className}>
+                                        <Typography className="text-base  font-normal text-blue-gray-600">
+                                            {empresa.ciudad}
+                                        </Typography>
+                                    </td>
+                                    <td className={className}>
+                                        <Typography className="text-base  font-normal text-blue-gray-600">
+                                            {empresa.direccion}
+                                        </Typography>
+                                    </td>
+                                    <td className={className}>
+                                        <Typography className="text-base  font-normal text-blue-gray-600">
+                                            {empresa.telefono}
+                                        </Typography>
+                                    </td>
+                                    <td className={className}>
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {empresa.tiendas_vinculadas.length}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base min-w-[100px] font-normal text-blue-gray-600">
-                                            { formatDate( created_at)}
+                                            { formatDate( empresa.created_at)}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {correo}
+                                            {empresa.correo}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {contacto}
+                                            {empresa.contacto}
                                         </Typography>
                                     </td>
                                     
-                                    <td className={className }>
-                                        <Typography
-                                            as="a"
-                                            href="#"
-                                            className="text-base flex gap-2 font-normal text-blue-gray-600"
-                                        >
-                                            <PencilIcon className='h-5 w-5'/>
-                                            <TrashIcon className='w-5 h-5'/>
-                                        </Typography>
-                                      
+                                    <td className={className + ' flex justify-center'}>
+                                        <Menu>
+                                            <MenuHandler>
+                                                <Button color="indigo" className='p-2'>   <EllipsisVerticalIcon className=" h-5 w-5 " /></Button>
+                                             
+                                            </MenuHandler>
+                                            <MenuList>
+                                                <MenuItem onClick={() => {
+                                                    dispatch(setShowModal(true));
+                                                    dispatch(setEmpresaToEdit(empresa))
+                                                    dispatch(setFormAction("update"));
+                                                }}>Editar empresa</MenuItem>
+                                                <MenuItem onClick={() => {
+                                                    // dispatch(fetchGetProveedorAsync(true));
+                                                }}>Eliminar</MenuItem>
+                                            </MenuList>
+
+                                        </Menu>
+
                                     </td>
                                    
                                 </tr>

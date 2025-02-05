@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, Chip, Input, Menu, MenuHandler, MenuItem, MenuList, Typography } from '@material-tailwind/react';
+import { Button, Card, CardBody, CardHeader, Chip, Input, Menu, MenuHandler, MenuItem, MenuList, Typography } from '@material-tailwind/react';
 import React, { useEffect, useRef, useState } from 'react'
 import Pagination from '@/share/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
@@ -40,7 +40,7 @@ const TableProveedores = () => {
             <table className="w-full min-w-[640px] table-auto">
                 <thead>
                     <tr>
-                        {["Nombre", "Ciudad", "Sedes", "Fecha", "Correo", ""].map((el) => (
+                        {["Nombre", "Ciudad", "Sedes", "Fecha", "Correo", "opciones"].map((el) => (
                             <th
                                 key={el}
                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -98,14 +98,15 @@ const TableProveedores = () => {
                                             className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                         />
                                     </td> */}
-                                    <td className={className}>
+                                    <td className={className +'flex justify-center'}>
                                         <Menu>
                                             <MenuHandler>
-                                                <EllipsisVerticalIcon className=" h-5 " />
+                                             <Button color="indigo" className='p-2'>   <EllipsisVerticalIcon className=" h-5 w-5 " /></Button>
+                                                                                          
                                             </MenuHandler>
                                             <MenuList>
                                                 <MenuItem onClick={() => {
-                                                    dispatch(setShowModal(false));
+                                                    dispatch(setShowModal(true));
                                                     dispatch(setProveedorToEdit(proveedor))
                                                     dispatch(setFormAction("update"));
                                                 }}>Editar Proveedor</MenuItem>

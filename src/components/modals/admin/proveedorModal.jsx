@@ -33,12 +33,9 @@ const ProveedorModal = () => {
   const statusModal = useSelector(getStatusModal);
   const proveedorFields = useSelector(getProveedorFields);
   // const image = useSelector(getProductImage);
-  const [searchCategory, setSearchCategory] = useState("");
   const sedes = useSelector((state) =>
     getSedesQuery(state, "")
   );
-  const [imgData, setImgData] = useState("");
-  const [imgData2, setImgData2] = useState("");
   const [filteredSedes, setFilteredSedes] = useState([]);
 
   const validationSchema = Yup.object().shape({
@@ -82,28 +79,29 @@ const ProveedorModal = () => {
   }
   useEffect(() => {
     loadSedes()
-  }, [statusModal]);
+    console.log('modal pro',show)
+  }, [show]);
   const closed = () => {
-    dispatch(setShowModal(true));
+    dispatch(setShowModal(false));
   };
  
   
 
-  const handleOpen = () => dispatch(setShowModal(!statusModal))
+  const handleOpen = () => dispatch(setShowModal(!show))
 
   return (
     <>
       <Menu>
         <MenuHandler className="px-2 py-1 m-0">
-          <Button color="indigo" className="p-1 m-0"><EllipsisVerticalIcon className="h-5 w-5"/></Button>
+          <Button color="white" className="p-1 m-0"><EllipsisVerticalIcon className="h-5 w-5"/></Button>
         </MenuHandler>
         <MenuList>
           <MenuItem onClick={() => {
-            dispatch(setShowModal(false));
+            dispatch(setShowModal(true));
             dispatch(setFormAction("add"));
           }}>Crear Proveedor</MenuItem>
           <MenuItem onClick={() => {
-            dispatch(fetchGetProveedorAsync(true));
+            dispatch(fetchGetProveedorAsync());
           }}>Actualizar</MenuItem>
         </MenuList>
 
@@ -111,12 +109,12 @@ const ProveedorModal = () => {
 
       <Dialog
         size="xs"
-        open={!statusModal}
+        open={show}
         handler={handleOpen}
       >
         <DialogHeader>
           <div>
-            {formAction === "update" ? "Actualizar" : "Crear nuevo"} producto
+            {formAction === "update" ? "Actualizar" : "Crear nuevo"} proveedor
           </div>
         </DialogHeader>
         <DialogBody>
@@ -301,7 +299,7 @@ const ProveedorModal = () => {
                   <Button
                     className=" lg:text-base  hover:bg-red-600 hover:text-white px-6 py-1 hover:rounded-full mx-3"
                     type="button"
-                    onClick={() => dispatch(setShowModal(true))}
+                    onClick={() => dispatch(setShowModal(false))}
                   >
                     Cancelar
                   </Button>

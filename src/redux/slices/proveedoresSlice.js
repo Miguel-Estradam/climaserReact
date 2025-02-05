@@ -55,7 +55,7 @@ export const ProveedorSlice = createSlice({
       state.formAction = "update";
     },
     setShowModal: (state, action) => {
-      state.statusModal = action.payload;
+      state.showModal = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -106,7 +106,7 @@ export const getProveedorFields = (state) => {
     user_id: state.proveedor.proveedor.user_id
   };
 };
-export const getProveedor = (state) => state.proveedor.Proveedor;
+export const getProveedor = (state) => state.proveedor.proveedor;
 // export const getProveedorImage = (state) => state.proveedor.imagen;
 export const getShowModal = (state) => state.proveedor.showModal;
 export const getFormAction = (state) => state.proveedor.formAction;

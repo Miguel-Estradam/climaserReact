@@ -17,6 +17,7 @@ import { fetchGetEmpresasAsync, getStatusEmpresa } from "@/redux/slices/empresas
 import TableEmpresas from "@/components/tables/admin/TableEmpresas";
 import { fetchGetSedesAsync, getStatusSedes } from "@/redux/slices/sedesSlice";
 import TableSedes from "@/components/tables/admin/TableSedes";
+import EmpresaModal from "@/components/modals/admin/empresaModal";
 
 export function EmpresasPage() {
 
@@ -42,7 +43,8 @@ export function EmpresasPage() {
             <Typography className="text-2xl" variant="h6" color="white">
               Empresas
             </Typography>
-            <Button color="white"> Crear Empresa</Button>
+            
+           { statusSedes == "success" && <EmpresaModal/>}
           </CardHeader>
           {statusEmpresas == "success" ?
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">

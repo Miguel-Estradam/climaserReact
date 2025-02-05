@@ -1,16 +1,22 @@
 import axios from "axios";
 import { API_URL } from '@/utils/urls';
+import { showError } from "@/utils/serviceMessages";
   // Crear una nueva empresa
   export const createEmpresa = async (empresa) => {
+    console.log(typeof empresa.dv)
+    // const dv = typeof empresa.dv == string ? parseInt(empresa.dv):empresa.dv
     empresa.tiendas_vinculadas = empresa.tiendas_vinculadas.toString();
+    console.log(empresa)
     try {
-      const response = await axios.post(`${API_URL}empresa/register`, empresa, {
+      const response = await axios.post(`${API_URL}/empresa/register`, empresa, {
         headers: {
           "Content-Type": "application/json",
         },
       });
       return response.data;
     } catch (error) {
+      
+      showError('Error al crear la empresa')
       console.error("Error creating empresa", error);
       throw error;
     }
@@ -45,7 +51,8 @@ import { API_URL } from '@/utils/urls';
   }
 
   // Actualizar una empresa
-  export const updateEmpresa= async (id, empresa) => {
+  export const updateEmpresa= async (empresa,id) => {
+    console.log(empresa)
     empresa.tiendas_vinculadas = empresa.tiendas_vinculadas.toString();
     try {
       const response = await axios.put(`${API_URL}/empresas/${id}`, empresa);

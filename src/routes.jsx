@@ -13,6 +13,7 @@ import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import ProveedoresA from "./pages/dashboard/Admin/proveedores";
 import EmpresasPage from "./pages/dashboard/Admin/empresasPage";
+import ResportesPageA from "./pages/dashboard/Admin/reportes";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -26,7 +27,7 @@ export const routesAdmin = [
         icon: <ClipboardDocumentCheckIcon {...icon} />,
         name: "Reportes",
         path: "/home",
-        element: <Home />,
+        element: <ResportesPageA />,
       },
       {
         icon: <UserGroupIcon {...icon} />,
@@ -40,24 +41,24 @@ export const routesAdmin = [
         path: "/empresas",
         element: <EmpresasPage />,
       },
-      {
-        icon: <UserCircleIcon {...icon} />,
-        name: "profile",
-        path: "/profile",
-        element: <Profile />,
-      },
-      {
-        icon: <TableCellsIcon {...icon} />,
-        name: "tables",
-        path: "/tables",
-        element: <Tables />,
-      },
-      {
-        icon: <InformationCircleIcon {...icon} />,
-        name: "notifications",
-        path: "/notifications",
-        element: <Notifications />,
-      },
+      // {
+      //   icon: <UserCircleIcon {...icon} />,
+      //   name: "profile",
+      //   path: "/profile",
+      //   element: <Profile />,
+      // },
+      // {
+      //   icon: <TableCellsIcon {...icon} />,
+      //   name: "tables",
+      //   path: "/tables",
+      //   element: <Tables />,
+      // },
+      // {
+      //   icon: <InformationCircleIcon {...icon} />,
+      //   name: "notifications",
+      //   path: "/notifications",
+      //   element: <Notifications />,
+      // },
     ],
   },
 
