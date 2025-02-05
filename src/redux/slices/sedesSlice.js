@@ -1,44 +1,45 @@
+import { createEmpresa, getEmpresas, updateEmpresa } from '@/services/empresasService';
+import { createSede, getSedes, updateSede } from '@/services/sedesServices';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getProveedores, getProveedor as getProveedorService, createProveedor, updateProveedor, deleteProveedor } from '@/services/proveedoresService'; // Asegúrate de importar las funciones
 
 // Estado inicial para manejar las cuentas
 
 
 const initialState = {
-    id:'',
-  proveedores: [],
+  id: '',
+  sedes: [],
   status: 'idle', // idle, loading, success, fail
-    error: null,
-  
-    showModal: false,
-    proveedor: {},
-  
+  error: null,
+
+  showModal: false,
+  sede: {},
+
   formAction: "add",
-  statusProveedor: "idle",
+  statusSedes: "idle",
   statusModal: "idle",
 };
-export const fetchAddProveedorAsync = createAsyncThunk("auth/fetchAddProveedorAsync", async (props, { getState }) => {
+export const fetchAddSedeAsync = createAsyncThunk("auth/fetchAddSedeAsync", async (props, { getState }) => {
   const {
-    Proveedor: { formAction, id },
+    sede: { formAction, id },
   } = getState();
   const res = await (formAction === "add"
-    ? addProveedor(props)
-    : updateProveedor({ ...props, id }));
+    ? createSede(props)
+    : updateSede({ ...props, id }));
   return res;
 });
 
-export const fetchGetProveedorAsync = createAsyncThunk(
-  "Proveedor/fetchGetProveedorAsync",
+export const fetchGetSedesAsync = createAsyncThunk(
+  "Empresa/fetchGetSedesAsync",
   async (forceFetch) => {
-      const response = await getProveedores();
-      console.log(response)
-    // setCacheValue("Proveedors", response, 5);
+    const response = await getSedes();
+    console.log(response)
+    // setCacheValue("Empresas", response, 5);
     return response;
   }
 );
 
-export const ProveedorSlice = createSlice({
-  name: "Proveedor",
+export const EmpresaSlice = createSlice({
+  name: "empresa",
   initialState,
   reducers: {
     setFormAction: (
@@ -47,9 +48,9 @@ export const ProveedorSlice = createSlice({
     ) => {
       state.formAction = action.payload;
     },
-    setProveedorToEdit: (state, action) => {
-        state.id = action.payload.id;
-        state.proveedor = action.payload.proveedor
+    setEmpresaToEdit: (state, action) => {
+      state.id = action.payload.id;
+      state.sede = action.payload.empresa
       state.formAction = "update";
     },
     setShowModal: (state, action) => {
@@ -58,66 +59,67 @@ export const ProveedorSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetProveedorAsync.pending, (state) => {
-        state.statusProveedor = "loading";
+      .addCase(fetchGetSedesAsync.pending, (state) => {
+        state.statusSedes = "loading";
       })
       .addCase(
-        fetchGetProveedorAsync.fulfilled,
+        fetchGetSedesAsync.fulfilled,
         (state, action) => {
-          state.proveedor = action.payload;
-          state.statusProveedor = "success";
+          state.sede = action.payload;
+          state.statusSedes = "success";
         }
       )
-      .addCase(fetchGetProveedorAsync.rejected, (state) => {
-        state.statusProveedor = "fail";
+      .addCase(fetchGetSedesAsync.rejected, (state) => {
+        state.statusSedes = "fail";
       })
-      .addCase(fetchAddProveedorAsync.pending, (state) => {
+      .addCase(fetchAddSedeAsync.pending, (state) => {
         state.statusModal = "loading";
       })
-      .addCase(fetchAddProveedorAsync.fulfilled, (state) => {
+      .addCase(fetchAddSedeAsync.fulfilled, (state) => {
         state.statusModal = "success";
         state.showModal = false;
       })
-      .addCase(fetchAddProveedorAsync.rejected, (state) => {
+      .addCase(fetchAddSedeAsync.rejected, (state) => {
         state.statusModal = "fail";
       });
   },
 });
 
 // Export actions
-export const { setFormAction, setProveedorToEdit, setShowModal } =
-  ProveedorSlice.actions;
+export const { setFormAction, setEmpresaToEdit, setShowModal } =
+  EmpresaSlice.actions;
 // Definición de selectores
-export const getProveedorFields = (state) => {
+export const getEmpresaFields = (state) => {
   return {
-    nombre_proveedor: state.proveedor.proveedor.nombre_proveedor,
-    ciudad:state.proveedor.proveedor.nombre_proveedor.ciudad,
-    nombre_sede:state.proveedor.proveedor.nombre_sede,
-    ciudad_sede: state.proveedor.proveedor.ciudad_sede,
-    centro_comercial: state.proveedor.proveedor.centro_comercial,
-    fecha: state.proveedor.proveedor.nombre_proveedor,
-    correo: state.Proveedor.precio,
-    novedades_activo: state.Proveedor.nombreDescriptivo,
+    nombre_sede: state.sede.sede.nombre_sede,
+    nit: state.sede.sede.nit,
+    ciudad: state.sede.sede.ciudad,
+    direccion: state.sede.sede.direccion,
+    telefono: state.sede.sede.telefono,
+    correo: state.sede.sede.correo,
+    contacto: state.sede.sede.contacto,
+    tiendas_vinculadas: state.sede.sede.tiendas_vinculadas,
+    created_at: state.sede.precio,
   };
 };
-export const getProveedor = (state) => state.proveedor.Proveedor;
-// export const getProveedorImage = (state) => state.Proveedor.imagen;
-export const getShowModal = (state) => state.proveedor.showModal;
-export const getFormAction = (state) => state.proveedor.formAction;
-export const getStatusProveedor = (state) =>
-  state.proveedor.statusProveedor;
-export const getProveedorQuery = (state , query) => {
+export const getEmpresa = (state) => state.sede.sede;
+// export const getEmpresaImage = (state) => state.sede.imagen;
+export const getShowModal = (state) => state.sede.showModal;
+export const getFormAction = (state) => state.sede.formAction;
+export const getStatusSedes = (state) =>
+  state.sede.statusSedes;
+export const getSedesQuery = (state, query) => {
   if (query) {
-    return state.proveedor.proveedor.filter(
+    return state.sede.sede.filter(
       (d) =>
-        d.nombre_proveedor.toLowerCase().includes(query) ||
+        d.nombre_empresa.toLowerCase().includes(query) ||
         d.ciudad.toLowerCase().includes(query) ||
-        d.centro_comercial.toLowerCase().includes(query) 
+        d.centro_comercial.toLowerCase().includes(query)
     );
   } else {
-    return state.proveedor.proveedor;
+    return state.sede.sede;
   }
 };
-export const getStatusModal = (state) => state.Proveedor.statusModal;
+export const getStatusModal = (state) => state.sede.statusModal;
 
-export default ProveedorSlice.reducer;
+export default EmpresaSlice.reducer;

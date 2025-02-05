@@ -1,9 +1,9 @@
-import { Card, CardBody, CardHeader, Chip, Input, Typography } from '@material-tailwind/react';
+import { Card, CardBody, CardHeader, Chip, Input, Menu, MenuHandler, MenuItem, MenuList, Typography } from '@material-tailwind/react';
 import React, { useEffect, useRef, useState } from 'react'
 import Pagination from '@/share/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProveedorQuery } from '@/redux/slices/proveedoresSlice';
-import { HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { getProveedorQuery, setFormAction, setProveedorToEdit, setShowModal } from '@/redux/slices/proveedoresSlice';
+import { EllipsisVerticalIcon, HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
 const TableProveedores = () => {
 
     const dispatch = useDispatch();
@@ -22,13 +22,13 @@ const TableProveedores = () => {
     const onChangePagination = (i) => {
         activePag.current = i;
         setData(
-            products.slice(activePag.current * sort, (activePag.current + 1) * sort)
+            proveedores.slice(activePag.current * sort, (activePag.current + 1) * sort)
         );
     };
-      useEffect(() => {
-    activePag.current = 0;
-    setData(proveedores.slice(0 * sort, (0 + 1) * sort));
-  }, [query]);
+    useEffect(() => {
+        activePag.current = 0;
+        setData(proveedores.slice(0 * sort, (0 + 1) * sort));
+    }, [query]);
     return (
         <>
             <div className=' my-4 flex justify-end'>
@@ -40,7 +40,7 @@ const TableProveedores = () => {
             <table className="w-full min-w-[640px] table-auto">
                 <thead>
                     <tr>
-                        {["Nombre", "Ciudad", "Sedes", "Fecha", "Correo", "Estado", ""].map((el) => (
+                        {["Nombre", "Ciudad", "Sedes", "Fecha", "Correo", ""].map((el) => (
                             <th
                                 key={el}
                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -57,56 +57,64 @@ const TableProveedores = () => {
                 </thead>
                 <tbody>
                     {data.map(
-                        ({ nombre_proveedor, ciudad, nombre_sede, fecha, correo, ciudad_sede, centro_comercial, novedades_activo, date }, key) => {
+                        (proveedor, key) => {
                             const className = `py-3 px-5 ${key === proveedores.length - 1
                                 ? ""
                                 : "border-b border-blue-gray-50"
                                 }`;
 
                             return (
-                                <tr key={nombre_proveedor}>
+                                <tr key={proveedor.nombre_proveedor}>
                                     <td className={className}>
-                                        <Typography className="text-base font-semibold text-blue-gray-600">
-                                            {nombre_proveedor}
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {proveedor.nombre_proveedor}
                                         </Typography>
                                     </td>
                                     <td className={className}>
-                                        <Typography className="text-base  font-semibold text-blue-gray-600">
-                                            {ciudad}
+                                        <Typography className="text-base  font-normal text-blue-gray-600">
+                                            {proveedor.ciudad}
                                         </Typography>
                                     </td>
                                     <td className={className}>
-                                        <Typography className="text-base font-semibold text-blue-gray-600">
-                                            {nombre_sede.length}
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {proveedor.nombre_sede.length}
                                         </Typography>
                                     </td>
                                     <td className={className}>
-                                        <Typography className="text-base font-semibold text-blue-gray-600">
-                                            {fecha}
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {proveedor.fecha}
                                         </Typography>
                                     </td>
                                     <td className={className}>
-                                        <Typography className="text-base font-semibold text-blue-gray-600">
-                                            {correo}
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {proveedor.correo}
                                         </Typography>
                                     </td>
-                                    <td className={className}>
+                                    {/* <td className={className}>
                                         <Chip
                                             variant="gradient"
                                             color={novedades_activo ? "green" : "blue-gray"}
                                             value={novedades_activo ? "Activo" : "desactivado"}
                                             className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                         />
-                                    </td>
+                                    </td> */}
                                     <td className={className}>
-                                        <Typography
-                                            as="a"
-                                            href="#"
-                                            className="text-base flex gap-2 font-semibold text-blue-gray-600"
-                                        >
-                                            <PencilIcon className='h-5 w-5' />
-                                            <TrashIcon className='w-5 h-5' />
-                                        </Typography>
+                                        <Menu>
+                                            <MenuHandler>
+                                                <EllipsisVerticalIcon className=" h-5 " />
+                                            </MenuHandler>
+                                            <MenuList>
+                                                <MenuItem onClick={() => {
+                                                    dispatch(setShowModal(false));
+                                                    dispatch(setProveedorToEdit(proveedor))
+                                                    dispatch(setFormAction("update"));
+                                                }}>Editar Proveedor</MenuItem>
+                                                <MenuItem onClick={() => {
+                                                    // dispatch(fetchGetProveedorAsync(true));
+                                                }}>Eliminar</MenuItem>
+                                            </MenuList>
+
+                                        </Menu>
 
                                     </td>
 

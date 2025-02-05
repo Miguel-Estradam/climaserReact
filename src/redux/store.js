@@ -3,7 +3,8 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // Usa localStorage
 import authReducer from "./slices/authSlice"; // Asegúrate de que la ruta es correcta
 import proveedoresReducer from "./slices/proveedoresSlice"; // Asegúrate de que la ruta es correcta
-
+import empresasReducer from "./slices/empresasSlice"
+import sedesReducer from "./slices/sedesSlice"
 // Configuración de persistencia
 const persistConfig = {
     key: "root",
@@ -14,7 +15,9 @@ const persistConfig = {
 // Combinación de reducers con persistencia
 const rootReducer = combineReducers({
     auth: authReducer,
-    proveedor:proveedoresReducer
+    proveedor: proveedoresReducer,
+    empresa: empresasReducer,
+    sede:sedesReducer
 });
 
 // Aplicar persistencia al reducer

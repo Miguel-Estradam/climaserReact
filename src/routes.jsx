@@ -7,10 +7,12 @@ import {
   RectangleStackIcon,
   ClipboardDocumentCheckIcon,
   UserGroupIcon,
+  BuildingOfficeIcon,
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import ProveedoresA from "./pages/dashboard/Admin/proveedores";
+import EmpresasPage from "./pages/dashboard/Admin/empresasPage";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -31,6 +33,12 @@ export const routesAdmin = [
         name: "Proveedores",
         path: "/proveedores",
         element: <ProveedoresA />,
+      },
+      {
+        icon: <BuildingOfficeIcon {...icon} />,
+        name: "Empresas",
+        path: "/empresas",
+        element: <EmpresasPage />,
       },
       {
         icon: <UserCircleIcon {...icon} />,

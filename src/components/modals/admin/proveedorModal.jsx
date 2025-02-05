@@ -1,12 +1,12 @@
-import { useAppDispatch, useSelector } from "app/hooks";
 
-// import ProductCard from "components/ProductCard";
+
+
 import { Formik } from "formik";
 import React, { useEffect, useState } from "react";
 // import {
 //   fetchAddProductAsync,
 //   fetchGetProductsAsync,
-//   getProductFields,
+//   getproveedorFields,
 //   getFormAction,
 //   getShowModal,
 //   setFormAction,
@@ -15,136 +15,122 @@ import React, { useEffect, useState } from "react";
 //   getProductImage,
 // } from "../../redux/productSlice";
 import * as Yup from "yup";
-
-import { FileInput, Label } from "flowbite-react";
-import ProductCard from "./ProductCard";
-import { IAddProduct } from "utils/models/IProducts";
-import { getSubCategorysQuery } from "modules/dashboard/redux/subCategorySlice";
-import { Dialog, Menu } from "@material-tailwind/react";
+import { Button, Dialog, DialogBody, DialogHeader, Input, Menu, MenuHandler, MenuItem, MenuList } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGetProveedorAsync, setShowModal,getFormAction,getShowModal,getStatusModal,getProveedorFields} from "@/redux/slices/proveedoresSlice";
+import { fetchGetProveedorAsync, setShowModal, getFormAction, getShowModal, getStatusModal, getProveedorFields, fetchAddProveedorAsync, setFormAction } from "@/redux/slices/proveedoresSlice";
+import { getSedesQuery } from "@/redux/slices/sedesSlice";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 
-const ProductSchema = Yup.object().shape({
-  nombreDescriptivo: Yup.string()
-    .required("Nombre requerido")
-    .max(50, "El máximo de caracteres permitidos es 50"),
-  categoria: Yup.string().required("categoría requerida"),
-  imagen: Yup.string().required("Imagen requerida").nullable(),
-  codigo: Yup.string().required("El código es requerido"),
-  precio: Yup.string().notRequired(),
-  subCategoria: Yup.string().notRequired(),
-  descripcion: Yup.string()
-    .notRequired()
-    .max(150, "El máximo de caracteres permitidos es 150"),
-});
+import Multiselect from 'multiselect-react-dropdown';
+
+
+
 
 const ProveedorModal = () => {
   const dispatch = useDispatch();
   const show = useSelector(getShowModal);
   const formAction = useSelector(getFormAction);
   const statusModal = useSelector(getStatusModal);
-  const ProductFields = useSelector(getProveedorFields);
-  const image = useSelector(getProductImage);
+  const proveedorFields = useSelector(getProveedorFields);
+  // const image = useSelector(getProductImage);
   const [searchCategory, setSearchCategory] = useState("");
   const sedes = useSelector((state) =>
-    getSubCategorysQuery(state, searchCategory)
+    getSedesQuery(state, "")
   );
   const [imgData, setImgData] = useState("");
   const [imgData2, setImgData2] = useState("");
-  const [uidSubCategory, setUidSubCategory] = useState("");
+  const [filteredSedes, setFilteredSedes] = useState([]);
 
+  const validationSchema = Yup.object().shape({
+    nombre_proveedor: Yup.string().required("El campo nombre y apellido es obligatorio"),
+    ciudad: Yup.string().required("El campo ciudad es obligatorio"),
+    correo: Yup.string().email("Correo inválido").required("El campo del correo es obligatorio"),
+    password: Yup.string()
+      .min(6, "La contraseña debe tener más de 6 caracteres")
+      .when([], {
+        is: () => formAction === "add",
+        then: (schema) => schema.required("La contraseña es obligatoria"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+    nombre_sede: Yup.array().min(1, "El campo sede es obligatorio").required("El campo sede es obligatorio"),
+  });
   const initialValue =
     formAction === "update"
-      ? ProductFields
+      ? proveedorFields
       : {
         nombre_proveedor: "",
         ciudad: "",
         nombre_sede: "",
+        correo: "",
         ciudad_sede: "",
         centro_comercial: "",
-        fecha: "",
-        correo: "",
-        novedades_activo: "",
+        fecha: Date.now(),
+        novedades_activo: true,
+        user_id: "",
       };
 
 
+  const loadSedes = () => {
 
+    // Asegurarse de que cada sede tenga los campos id y nombre_sede_direccion
+    const filtered = sedes.map(sede => ({
+      ...sede,
+      nombre_sede_direccion: `${sede.nombre_sede} - ${sede.direccion_local}`
+    }));
+    setFilteredSedes(filtered)
+
+  }
   useEffect(() => {
-    if (formAction === "update") {
-      setImgData(image);
-    } else {
-      setImgData("");
-    }
-  }, [show]);
+    loadSedes()
+  }, [statusModal]);
   const closed = () => {
     dispatch(setShowModal(true));
   };
-  const onChangeSubCategory = (subCategory) => {
-    // setUidSubCategory(s)
-    const objetoEncontrado = subCategorys.find(
-      (item) => item.name === subCategory
-    );
-    if (objetoEncontrado) {
-      setUidSubCategory(objetoEncontrado.id);
-    } else {
-    }
-  };
-  const onChangeCategory = (subCategory) => {
-    // setUidSubCategory(s)
-    setSearchCategory(subCategory);
-  };
-   const [open, setOpen] = React.useState(false);
  
-  const handleOpen = () => setOpen(!open);
- 
+  
+
+  const handleOpen = () => dispatch(setShowModal(!statusModal))
+
   return (
     <>
       <Menu>
-        <MenuHandler>
-          <Button>Menu</Button>
+        <MenuHandler className="px-2 py-1 m-0">
+          <Button color="indigo" className="p-1 m-0"><EllipsisVerticalIcon className="h-5 w-5"/></Button>
         </MenuHandler>
         <MenuList>
           <MenuItem onClick={() => {
-            dispatch(setShowModal(true));
+            dispatch(setShowModal(false));
             dispatch(setFormAction("add"));
           }}>Crear Proveedor</MenuItem>
           <MenuItem onClick={() => {
             dispatch(fetchGetProveedorAsync(true));
           }}>Actualizar</MenuItem>
-          <MenuItem>Menu Item 3</MenuItem>
         </MenuList>
-       
+
       </Menu>
 
       <Dialog
-        
         size="xs"
-        open={statusModal}
+        open={!statusModal}
         handler={handleOpen}
-        className="bg-transparent shadow-none"
-        dismissible
-        show={show}
-        onClose={() => dispatch(setShowModal(false))}
       >
-        <Modal.Header>
+        <DialogHeader>
           <div>
             {formAction === "update" ? "Actualizar" : "Crear nuevo"} producto
           </div>
-        </Modal.Header>
-        <Modal.Body>
+        </DialogHeader>
+        <DialogBody>
           <Formik
             initialValues={initialValue}
-            validationSchema={ProductSchema}
+            validationSchema={validationSchema}
             onSubmit={async (values) => {
+              console.log(values)
               await dispatch(
-                fetchAddProductAsync({
-                  ...values,
-                  imagen: imgData,
-                  imagenField: imgData2,
-                  uidSubCategory: uidSubCategory,
+                fetchAddProveedorAsync({
+                  ...values
                 })
               );
-              await dispatch(fetchGetProductsAsync(true));
+              await dispatch(fetchGetProveedorAsync());
             }}
           >
             {({
@@ -154,253 +140,153 @@ const ProveedorModal = () => {
               handleBlur,
               handleSubmit,
               isSubmitting,
+              setFieldValue,
+              submitCount,
             }) => (
               <form className="grid grid-cols-2" onSubmit={handleSubmit}>
                 <div className=" col-span-2 mb-4">
-                  <label htmlFor="val-name" className="text-label">
-                    Nombre descriptivo <span className="text-red-500">*</span>
-                  </label>
-                  <div className="input-group transparent-append mb-2">
+                  {/* Nombre */}
+                  <div className="input-group mb-2">
                     {/* <span className="input-group-text">
                       <i className="fa fa-user"></i>
                     </span> */}
-                    <input
+
+                    <label htmlFor="">Nombre Proveedor</label>
+                    <Input
                       type="text"
-                      className={`form-control w-full ${values.nombreDescriptivo && errors.nombreDescriptivo
-                          ? "is-invalid"
-                          : "is-valid"
+                      className={`form-control w-full ${values.nombre_proveedor && errors.nombre_proveedor
+                        ? "is-invalid"
+                        : "is-valid"
                         }`}
-                      id="val-name"
-                      name="nombreDescriptivo"
+                      id="val-nombre_proveedor"
+                      name="nombre_proveedor"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      value={values.nombreDescriptivo}
+                      value={values.nombre_proveedor}
                       autoComplete="off"
                     />
                     <div
-                      className="invalid-feedback animated fadeInUp text-red-500"
+                      className="invalid-feedback animated fadeInUp text-red-500 text-xs"
                       style={{ display: "block" }}
                     >
-                      {errors.nombreDescriptivo && errors.nombreDescriptivo}
+                      {errors.nombre_proveedor && submitCount > 0 && errors.nombre_proveedor}
                     </div>
                   </div>
-                </div>
-                <div className=" col-span-1 mb-4 pr-1">
-                  <label htmlFor="val-name" className="text-label">
-                    Categoría <span className="text-red-500">*</span>
-                  </label>
-                  <div className=" input-group transparent-append mb-2">
+                  {/* Ciudad */}
+                  <div className="input-group mb-2">
                     {/* <span className="input-group-text">
                       <i className="fa fa-user"></i>
                     </span> */}
-                    <select
-                      className={`form-control w-full ${values.categoria && errors.categoria
-                          ? "is-invalid"
-                          : "is-valid"
-                        }`}
-                      id="val-names"
-                      name="categoria"
-                      onChange={(e) => {
-                        handleChange(e);
 
-                        onChangeCategory(e.target.value);
-                      }}
-                      onBlur={handleBlur}
-                      value={values.categoria}
-                      autoComplete="off"
-                      style={{ display: "block" }}
-                    >
-                      <option value="" label="Selecciona una categoria">
-                        Selecciona una categoria
-                      </option>
-                      <option value="muebles" label="Muebles">
-                        {" "}
-                        muebles
-                      </option>
-                      <option value="tecnologia" label="Tecnología">
-                        Tecnología
-                      </option>
-
-                      <option
-                        value="electrodomesticos"
-                        label="Electrodomésticos"
-                      >
-                        Electrodomésticos
-                      </option>
-                      <option value="deportes" label="Deportes">
-                        Deportes
-                      </option>
-                    </select>
-                    <div
-                      className="invalid-feedback text-red-500 animated fadeInUp"
-                      style={{ display: "block" }}
-                    >
-                      {errors.categoria && errors.categoria}
-                    </div>
-                  </div>
-                </div>
-                <div className=" col-span-1 mb-4 pr-1">
-                  <label htmlFor="val-name" className="text-label">
-                    Subcategoría
-                  </label>
-                  <div className=" input-group transparent-append mb-2">
-                    {/* <span className="input-group-text">
-                      <i className="fa fa-user"></i>
-                    </span> */}
-                    <select
-                      className={`form-control w-full ${values.subCategoria && errors.subCategoria
-                          ? "is-invalid"
-                          : "is-valid"
-                        }`}
-                      id="val-subcategoria"
-                      name="subCategoria"
-                      onChange={(e) => {
-                        handleChange(e);
-
-                        onChangeSubCategory(e.target.value);
-                      }}
-                      onBlur={handleBlur}
-                      value={values.subCategoria}
-                      autoComplete="off"
-                      style={{ display: "block" }}
-                    >
-                      <option value="" label="Selecciona una categoria">
-                        Selecciona una subcategoría
-                      </option>
-                      {subCategorys.map((c) => (
-                        <option key={c.id} value={c.name} label={c.name}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div
-                      className="invalid-feedback text-red-500 animated fadeInUp"
-                      style={{ display: "block" }}
-                    >
-                      {errors.subCategoria && errors.subCategoria}
-                    </div>
-                  </div>
-                </div>
-
-                <div className=" col-span-1 mb-4 pr-1">
-                  <label htmlFor="val-name" className="text-label">
-                    Precio
-                  </label>
-                  <div className="input-group transparent-append mb-2">
-                    {/* <span className="input-group-text">
-                      <i className="fa fa-user"></i>
-                    </span> */}
-                    <input
+                    <label htmlFor="">Ciudad</label>
+                    <Input
                       type="text"
-                      className={`form-control w-full ${values.precio && errors.precio ? "is-valid" : "is-valid"
+                      className={`form-control w-full text-base ${values.ciudad && errors.ciudad
+                        ? "is-invalid"
+                        : "is-valid"
                         }`}
-                      id="val-precio"
-                      name="precio"
+                      id="val-ciudad"
+                      name="ciudad"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      value={values.precio}
+                      value={values.ciudad}
                       autoComplete="off"
                     />
                     <div
-                      className="invalid-feedback animated fadeInUp text-red-500"
+                      className="invalid-feedback animated fadeInUp text-red-500 text-xs"
                       style={{ display: "block" }}
                     >
-                      {errors.precio && errors.precio}
+                      {errors.ciudad && submitCount > 0 && errors.ciudad}
                     </div>
                   </div>
-                </div>
-                <div className=" col-span-1 mb-4">
-                  <label htmlFor="val-name" className="text-label">
-                    Código <span className="text-red-500">*</span>
-                  </label>
-                  <div className="input-group transparent-append mb-2">
+                  {/* Correo */}
+                  <div className="input-group mb-2">
                     {/* <span className="input-group-text">
                       <i className="fa fa-user"></i>
                     </span> */}
-                    <input
+
+                    <label htmlFor="">Correo</label>
+                    <Input
                       type="text"
-                      className={`form-control w-full ${values.codigo && errors.codigo
-                          ? "is-invalid"
-                          : "is-valid"
+                      className={`   w-full ${values.correo && errors.correo
+                        ? "is-invalid"
+                        : "is-valid"
                         }`}
-                      id="val-codigo"
-                      name="codigo"
+                      id="val-correo"
+                      name="correo"
+                      placeholder="Ejemplo@gmail.com"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      value={values.codigo}
+                      value={values.correo}
                       autoComplete="off"
                     />
                     <div
-                      className="invalid-feedback animated fadeInUp text-red-500"
+                      className="invalid-feedback animated fadeInUp text-red-500 text-xs"
                       style={{ display: "block" }}
                     >
-                      {errors.codigo && errors.codigo}
+                      {errors.correo && submitCount > 0 && errors.correo}
                     </div>
                   </div>
-                </div>
-                <div className=" col-span-2 mb-4">
-                  <label htmlFor="val-name" className="text-label">
-                    Descripción <span className="text-red-500">*</span>
-                  </label>
-                  <div className="input-group transparent-append mb-2">
+                  {/* Contraseña */}
+                  {formAction == "add" && <div className="input-group mb-2">
                     {/* <span className="input-group-text">
                       <i className="fa fa-user"></i>
                     </span> */}
-                    <textarea
-                      className={`form-control w-full `}
-                      id="val-descipcion"
-                      name="descripcion"
+
+                    <label htmlFor="">Contraseña</label>
+                    <Input
+                      type="password"
+                      className={`   w-full ${values.password && errors.password
+                        ? "is-invalid"
+                        : "is-valid"
+                        }`}
+                      id="val-password"
+                      name="password"
+                      placeholder="***********"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      value={values.descripcion}
+                      value={values.password}
+                      autoComplete="off"
                     />
                     <div
-                      className="invalid-feedback animated fadeInUp text-red-500"
+                      className="invalid-feedback animated fadeInUp text-red-500 text-xs"
                       style={{ display: "block" }}
                     >
-                      {errors.descripcion && errors.descripcion}
+                      {errors.password && submitCount > 0 && errors.password}
                     </div>
-                  </div>
-                </div>
-                {/* Otros campos similares */}
-                <div className=" col-span-2 mb-4">
-                  <label htmlFor="val-image" className="text-label">
-                    Subir imagen
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text">
-                      <i className="fa fa-upload"></i>
-                    </span>
-                    <div className="form-file">
-                      <input type="hidden" value={values.imagen} />
-                      <input
-                        type="file"
-                        id="val-imagen"
-                        name="imagen"
-                        accept="image/*"
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            handleChange(e);
-                            onChangePicture(e);
-                          }
-                        }}
-                        onBlur={handleBlur}
-                      />
-                    </div>
+                  </div>}
+                  {/* Correo */}
+                  <div className="input-group mb-2">
+                    {/* <span className="input-group-text">
+                      <i className="fa fa-user"></i>
+                    </span> */}
+                    <label htmlFor="">Sedes</label>
+                    <Multiselect
+                      options={filteredSedes}
+                      displayValue="nombre_sede_direccion"
+
+                      selectedValues={values.nombre_sede}
+                      idField='id'
+                      onSelect={(selectedList) => setFieldValue("nombre_sede", selectedList)}
+                      onRemove={(selectedList) => setFieldValue("nombre_sede", selectedList)}
+                      placeholder="Seleccione las sedes"
+                      className="border p-2 rounded"
+                    />
                     <div
-                      className="invalid-feedback animated fadeInUp text-red-500"
+                      className="invalid-feedback animated fadeInUp text-red-500 text-xs"
                       style={{ display: "block" }}
                     >
-                      {errors.imagen && errors.imagen}
+                      {errors.nombre_sede && submitCount > 0 && errors.nombre_sede}
                     </div>
-                    <ProductCard image={imgData} />
                   </div>
                 </div>
+
+
 
                 <div className="col-span-2">
-                  <button
+                  <Button
                     type="submit"
-                    className="lg:text-base bg-vinotinto hover:bg-red-800 text-white  py-1 px-6 mx-3 rounded-full"
+                    className="lg:text-base bg-secondary hover:bg-blue-800 text-white  py-1 px-6 mx-3  hover:rounded-full"
                     disabled={isSubmitting}
                   >
                     {formAction === "update" ? "Actualizar" : "Guardar"}
@@ -410,20 +296,20 @@ const ProveedorModal = () => {
                         <span className="sr-only">Loading...</span>
                       </>
                     )}
-                  </button>
+                  </Button>
 
-                  <button
-                    className=" hover:bg-vinotinto hover:text-white px-6 py-1 hover:rounded-full mx-3"
+                  <Button
+                    className=" lg:text-base  hover:bg-red-600 hover:text-white px-6 py-1 hover:rounded-full mx-3"
                     type="button"
-                    onClick={() => dispatch(setShowModal(false))}
+                    onClick={() => dispatch(setShowModal(true))}
                   >
                     Cancelar
-                  </button>
+                  </Button>
                 </div>
               </form>
             )}
           </Formik>
-        </Modal.Body>
+        </DialogBody>
       </Dialog>
     </>
   );

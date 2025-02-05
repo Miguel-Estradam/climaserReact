@@ -19,7 +19,7 @@ export const createProveedor = async (proveedor) => {
         nombre_proveedor: proveedor.nombre_proveedor,
         ciudad: proveedor.ciudad,
         nombre_sede: JSON.stringify(proveedor.nombre_sede),
-        ciudad_sede: proveedor.ciudad_sede,
+        ciudad_sede: proveedor.ciudad,
         centro_comercial: "",
         fecha: Date.now(),
         correo: proveedor.correo,
@@ -73,10 +73,12 @@ export const getProveedor = async (email) => {
 };
 
 // Actualizar un proveedor
-export const updateProveedor = async (id, proveedor) => {
+export const updateProveedor = async ( proveedor) => {
   try {
+   
     proveedor.nombre_sede = JSON.stringify(proveedor.nombre_sede);
-    const response = await axios.put(`${API_URL}/proveedor/${id}`, proveedor);
+    console.log(proveedor,"aaaaaaaaaaaaaaa")
+    const response = await axios.put(`${API_URL}/proveedor/${proveedor.id}`, proveedor);
     showSuccess('Proveedor actualizado');
     return response.data;
   } catch (error) {

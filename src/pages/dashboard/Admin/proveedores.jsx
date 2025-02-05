@@ -16,16 +16,24 @@ import { fetchGetProveedorAsync, getStatusProveedor } from "@/redux/slices/prove
 import TableProveedores from "@/components/tables/admin/TableProveedores";
 import { useDispatch, useSelector } from "react-redux";
 import { use } from "react";
+import { fetchGetSedesAsync, getStatusSedes } from "@/redux/slices/sedesSlice";
+import ProveedorModal from "@/components/modals/admin/proveedorModal";
 
 export function ProveedoresA() {
 
   const dispatch = useDispatch();
 
   const statusPreveedores = useSelector(getStatusProveedor);
+  const statusSedes = useSelector(getStatusSedes);
   useEffect(() => {
     const getStatus = async () => {
-      if (statusPreveedores === "idle" || statusPreveedores === "loading")
-        await dispatch(fetchGetProveedorAsync());
+      if (statusPreveedores === "idle" || statusPreveedores === "loading") {
+            dispatch(fetchGetProveedorAsync());
+      }
+      if (statusSedes === "idle" || statusSedes === "loading") {
+            dispatch(fetchGetSedesAsync());
+      }
+    
     };
     getStatus();
   }, []);
@@ -40,7 +48,7 @@ export function ProveedoresA() {
             <Typography className="text-2xl" variant="h6" color="white">
               Proveedores
             </Typography>
-            <Button color="white"> Crear Proveedor</Button>
+            <Button color="white">{ statusSedes == "success" && <ProveedorModal/>}</Button>
           </CardHeader>
           {statusPreveedores == "success" ?
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">

@@ -1,36 +1,47 @@
-import { Card, CardBody, CardHeader, Chip, Typography } from '@material-tailwind/react';
-import React, { useRef, useState } from 'react'
+import { Card, CardBody, CardHeader, Chip, Input, Typography } from '@material-tailwind/react';
+import React, { useEffect, useRef, useState } from 'react'
 import Pagination from '@/share/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProveedorQuery } from '@/redux/slices/proveedoresSlice';
+import { getEmpresasQuery } from '@/redux/slices/empresasSlice';
 import { HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
+
+import { formatDate } from '@/hooks/formatDate';
 const TableEmpresas = () => {
 
     const dispatch = useDispatch();
 
     const [query, setQuery] = useState("");
     const sort = 5;
-    const proveedores = useSelector((state) => getProveedorQuery(state, query));
-    const paggination = Array(Math.ceil(proveedores.length / sort))
+    const empresas = useSelector((state) => getEmpresasQuery(state, query));
+    const paggination = Array(Math.ceil(empresas.length / sort))
         .fill(0)
         .map((_, i) => i + 1);
 
     const activePag = useRef(0);
     const [data, setData] = useState(
-        proveedores.slice(activePag.current * sort, (activePag.current + 1) * sort)
+        empresas.slice(activePag.current * sort, (activePag.current + 1) * sort)
     );
     const onChangePagination = (i) => {
         activePag.current = i;
         setData(
-            products.slice(activePag.current * sort, (activePag.current + 1) * sort)
+            empresas.slice(activePag.current * sort, (activePag.current + 1) * sort)
         );
     };
+    useEffect(() => {
+        activePag.current = 0;
+        setData(empresas.slice(0 * sort, (0 + 1) * sort));
+      }, [query]);
     return (
-        <>
+        <><div className=' my-4 flex justify-end'>
+                        <div className="mr-auto md:mr-4 md:w-56">
+                            <Input label="Buscar"
+                                onChange={(e) => setQuery(e.target.value.toLowerCase())} value={query} />
+                        </div>
+                    </div>
             <table className="w-full min-w-[640px] table-auto">
                 <thead>
                     <tr>
-                        {["Nombre", "Ciudad", "Sedes", "Fecha", "Correo", "Estado", ""].map((el) => (
+                        {["Nombre","Nit", "Ciudad","direccion", "Telefono", "Tiendas vinculadas", "Fecha", "Correo","Contacto", ""].map((el) => (
                             <th
                                 key={el}
                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -46,53 +57,66 @@ const TableEmpresas = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {proveedores.map(
-                        ({ nombre_proveedor, ciudad, nombre_sede, fecha, correo, ciudad_sede, centro_comercial, novedades_activo, date }, key) => {
-                            const className = `py-3 px-5 ${key === proveedores.length - 1
+                    {data.map(
+                        ({ nombre_empresa, nit, ciudad,direccion, telefono, tiendas_vinculadas, created_at, correo, contacto }, key) => {
+                            const className = `py-3 px-5 ${key === empresas.length - 1
                                 ? ""
                                 : "border-b border-blue-gray-50"
                                 }`;
 
                             return (
-                                <tr key={nombre_proveedor}>
+                                <tr key={nombre_empresa}>
                                     <td className={className}>
-                                        <Typography className="text-base font-semibold text-blue-gray-600">
-                                            {nombre_proveedor}
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {nombre_empresa}
                                         </Typography>
                                     </td>
                                     <td className={className}>
-                                        <Typography className="text-base  font-semibold text-blue-gray-600">
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {nit}
+                                        </Typography>
+                                    </td>
+                                    <td className={className}>
+                                        <Typography className="text-base  font-normal text-blue-gray-600">
                                             {ciudad}
                                         </Typography>
                                     </td>
                                     <td className={className}>
-                                        <Typography className="text-base font-semibold text-blue-gray-600">
-                                            {nombre_sede.length}
+                                        <Typography className="text-base  font-normal text-blue-gray-600">
+                                            {direccion}
                                         </Typography>
                                     </td>
                                     <td className={className}>
-                                        <Typography className="text-base font-semibold text-blue-gray-600">
-                                            {fecha}
+                                        <Typography className="text-base  font-normal text-blue-gray-600">
+                                            {telefono}
                                         </Typography>
                                     </td>
                                     <td className={className}>
-                                        <Typography className="text-base font-semibold text-blue-gray-600">
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {tiendas_vinculadas.length}
+                                        </Typography>
+                                    </td>
+                                    <td className={className}>
+                                        <Typography className="text-base min-w-[100px] font-normal text-blue-gray-600">
+                                            { formatDate( created_at)}
+                                        </Typography>
+                                    </td>
+                                    <td className={className}>
+                                        <Typography className="text-base font-normal text-blue-gray-600">
                                             {correo}
                                         </Typography>
                                     </td>
-                                    <td className={className }>
-                                        <Chip
-                                            variant="gradient"
-                                            color={novedades_activo ? "green" : "blue-gray"}
-                                            value={novedades_activo ? "Activo" : "desactivado"}
-                                            className="py-0.5 px-2 text-[11px] font-medium w-fit"
-                                        />
+                                    <td className={className}>
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {contacto}
+                                        </Typography>
                                     </td>
+                                    
                                     <td className={className }>
                                         <Typography
                                             as="a"
                                             href="#"
-                                            className="text-base flex gap-2 font-semibold text-blue-gray-600"
+                                            className="text-base flex gap-2 font-normal text-blue-gray-600"
                                         >
                                             <PencilIcon className='h-5 w-5'/>
                                             <TrashIcon className='w-5 h-5'/>

@@ -5,24 +5,25 @@ import { getProveedores, getProveedor as getProveedorService, createProveedor, u
 
 
 const initialState = {
-    id:'',
+  id: '',
   proveedores: [],
   status: 'idle', // idle, loading, success, fail
-    error: null,
-  
-    showModal: false,
-    proveedor: {},
-  
+  error: null,
+
+  showModal: false,
+  proveedor: {},
+
   formAction: "add",
   statusProveedor: "idle",
   statusModal: "idle",
 };
 export const fetchAddProveedorAsync = createAsyncThunk("auth/fetchAddProveedorAsync", async (props, { getState }) => {
   const {
-    Proveedor: { formAction, id },
+    proveedor: { formAction, id },
   } = getState();
+  console.log(props)
   const res = await (formAction === "add"
-    ? addProveedor(props)
+    ? createProveedor(props)
     : updateProveedor({ ...props, id }));
   return res;
 });
@@ -30,8 +31,8 @@ export const fetchAddProveedorAsync = createAsyncThunk("auth/fetchAddProveedorAs
 export const fetchGetProveedorAsync = createAsyncThunk(
   "Proveedor/fetchGetProveedorAsync",
   async (forceFetch) => {
-      const response = await getProveedores();
-      console.log(response)
+    const response = await getProveedores();
+    console.log(response)
     // setCacheValue("Proveedors", response, 5);
     return response;
   }
@@ -48,12 +49,13 @@ export const ProveedorSlice = createSlice({
       state.formAction = action.payload;
     },
     setProveedorToEdit: (state, action) => {
-        state.id = action.payload.id;
-        state.proveedor = action.payload.proveedor
+      console.log(action.payload)
+      state.id = action.payload.id
+      state.proveedor = action.payload
       state.formAction = "update";
     },
     setShowModal: (state, action) => {
-      state.showModal = action.payload;
+      state.statusModal = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -64,7 +66,7 @@ export const ProveedorSlice = createSlice({
       .addCase(
         fetchGetProveedorAsync.fulfilled,
         (state, action) => {
-          state.proveedor = action.payload;
+          state.proveedores = action.payload;
           state.statusProveedor = "success";
         }
       )
@@ -89,35 +91,39 @@ export const { setFormAction, setProveedorToEdit, setShowModal } =
   ProveedorSlice.actions;
 // Definición de selectores
 export const getProveedorFields = (state) => {
+  console.log(state)
   return {
+
+    id: state.proveedor.proveedor.id,
     nombre_proveedor: state.proveedor.proveedor.nombre_proveedor,
-    ciudad:state.proveedor.proveedor.nombre_proveedor.ciudad,
-    nombre_sede:state.proveedor.proveedor.nombre_sede,
+    ciudad: state.proveedor.proveedor.ciudad,
+    nombre_sede: state.proveedor.proveedor.nombre_sede,
+    correo: state.proveedor.proveedor.correo,
     ciudad_sede: state.proveedor.proveedor.ciudad_sede,
     centro_comercial: state.proveedor.proveedor.centro_comercial,
-    fecha: state.proveedor.proveedor.nombre_proveedor,
-    correo: state.Proveedor.precio,
-    novedades_activo: state.Proveedor.nombreDescriptivo,
+    fecha: state.proveedor.proveedor.fecha,
+    novedades_activo: state.proveedor.proveedor.novedades_activo,
+    user_id: state.proveedor.proveedor.user_id
   };
 };
 export const getProveedor = (state) => state.proveedor.Proveedor;
-// export const getProveedorImage = (state) => state.Proveedor.imagen;
+// export const getProveedorImage = (state) => state.proveedor.imagen;
 export const getShowModal = (state) => state.proveedor.showModal;
 export const getFormAction = (state) => state.proveedor.formAction;
 export const getStatusProveedor = (state) =>
   state.proveedor.statusProveedor;
-export const getProveedorQuery = (state , query) => {
+export const getProveedorQuery = (state, query) => {
   if (query) {
-    return state.proveedor.proveedor.filter(
+    return state.proveedor.proveedores.filter(
       (d) =>
         d.nombre_proveedor.toLowerCase().includes(query) ||
         d.ciudad.toLowerCase().includes(query) ||
-        d.centro_comercial.toLowerCase().includes(query) 
+        d.centro_comercial.toLowerCase().includes(query)
     );
   } else {
-    return state.proveedor.proveedor;
+    return state.proveedor.proveedores;
   }
 };
-export const getStatusModal = (state) => state.Proveedor.statusModal;
+export const getStatusModal = (state) => state.proveedor.statusModal;
 
 export default ProveedorSlice.reducer;
