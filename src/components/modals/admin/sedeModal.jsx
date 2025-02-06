@@ -1,64 +1,61 @@
 import { Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { Button, Dialog, DialogBody, DialogHeader, Input, Menu, MenuHandler, MenuItem, MenuList, Typography } from "@material-tailwind/react";
+import { Button, Dialog, DialogBody, DialogHeader, Input, Menu, MenuHandler, MenuItem, MenuList, Option, Select, Typography } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAddEmpresaAsync, fetchGetEmpresasAsync, getFormAction, getShowModal, getStatusModal, setShowModal, getEmpresaFields, setFormAction } from "@/redux/slices/empresasSlice";
+import { fetchAddSedeAsync, fetchGetSedesAsync, getFormAction, getShowModal, getStatusModal, setShowModal, getSedeFields, setFormAction } from "@/redux/slices/sedesSlice";
 import { getSedesQuery } from "@/redux/slices/sedesSlice";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 import Multiselect from 'multiselect-react-dropdown';
 import { calcularDV } from "@/hooks/calcularDv";
 import { showError } from "@/utils/serviceMessages";
-import { deleteEmpresa } from "@/services/empresasService";
+import { getEmpresasQuery } from "@/redux/slices/empresasSlice";
 
-const EmpresaModal = () => {
+const SedeModal = () => {
   const dispatch = useDispatch();
   const show = useSelector(getShowModal);
   const formAction = useSelector(getFormAction);
   const statusModal = useSelector(getStatusModal);
-  const empresaFields = useSelector(getEmpresaFields);
-  const sedes = useSelector((state) => getSedesQuery(state, ""));
+  const sedeFields = useSelector(getSedeFields);
+  const empresas = useSelector((state) => getEmpresasQuery(state, ""));
   const [filteredSedes, setFilteredSedes] = useState([]);
 
   const validationSchema = Yup.object().shape({
-    nombre_empresa: Yup.string().required("El campo nombre de la empresa es obligatorio"),
-    nit: Yup.string().required("El campo NIT es obligatorio"),
+    nombre_sede: Yup.string().required("El campo nombre de la sede es obligatorio"),
+    nit: Yup.string().required("El campo codigo es obligatorio"),
     dv: Yup.string().required("DV "),
     ciudad: Yup.string().required("El campo ciudad es obligatorio"),
-    direccion: Yup.string().required("El campo dirección es obligatorio"),
-    telefono: Yup.string().required("El campo teléfono es obligatorio"),
-    correo: Yup.string().email("Correo inválido").required("El campo correo es obligatorio"),
-    contacto: Yup.string().required("El campo contacto es obligatorio"),
-    // tiendas_vinculadas: Yup.array().min(0, "Debe seleccionar al menos una tienda")
+    direccion_local: Yup.string().required("El campo dirección local es obligatorio"),
+    celular: Yup.string().required("El campo celular es obligatorio"),
+    centro_comercial: Yup.string().required("El campo centro comercial es obligatorio"),
+    empresa_id: Yup.string().required("El nombre de la empresa es obligatorio"),
+    // nombre_sede: Yup.string().email("Correo inválido").required("El campo correo es obligatorio"),
+    // nombre_sede: Yup.string().required("El campo contacto es obligatorio"),
   });
 
   const initialValue =
     formAction === "update"
-      ? empresaFields
+      ? sedeFields
       : {
-        nombre_empresa: "",
+        nombre_sede: "",
         nit: "",
-        dv: "",
+        dv: 0,
         ciudad: "",
-        direccion: "",
-        telefono: "",
-        correo: "",
-        contacto: "",
-        tiendas_vinculadas: [],
-        created_at: Date.now(),
+        centro_comercial: "",
+        celular: "",
+        equipos: [],
+        direccion_local: "",
+        nombre_empresa: "",
+        empresa_id: "",
       };
 
-  const loadSedes = () => {
-    const filtered = sedes.map(sede => ({
-      ...sede,
-      nombre_sede_direccion: `${sede.nombre_sede} - ${sede.direccion_local}`,
-    }));
-    setFilteredSedes(filtered);
-  };
 
-  useEffect(() => {
-    loadSedes();
-  }, [statusModal]);
+  const onEmpresaSelect = (id) => {
+
+    //@ts-ignore
+    const empresa = empresas.filter(emp => emp.id == id);
+    return empresa[0].nombre_empresa;
+  }
 
   const handleOpen = () => dispatch(setShowModal(!show));
 
@@ -73,16 +70,16 @@ const EmpresaModal = () => {
           <MenuItem onClick={() => {
             dispatch(setShowModal(true));
             dispatch(setFormAction("add"));
-          }}>Crear Empresa</MenuItem>
+          }}>Crear sede</MenuItem>
           <MenuItem onClick={() => {
-            dispatch(fetchGetEmpresasAsync(true));
+            dispatch(fetchGetSedesAsync(true));
           }}>Actualizar</MenuItem>
         </MenuList>
       </Menu>
 
       <Dialog size="xs" open={show} handler={handleOpen}>
         <DialogHeader>
-          <div>{formAction === "update" ? "Actualizar" : "Crear nueva"} empresa</div>
+          <div>{formAction === "update" ? "Actualizar" : "Crear nueva"} sede</div>
         </DialogHeader>
         <DialogBody>
           <Formik
@@ -90,11 +87,11 @@ const EmpresaModal = () => {
             validationSchema={validationSchema}
             onSubmit={async (values) => {
               console.log(values)
-              dispatch(fetchAddEmpresaAsync({ ...values })).then(() => {
+              dispatch(fetchAddSedeAsync({ ...values })).then(() => {
 
-                dispatch(fetchGetEmpresasAsync());
+                dispatch(fetchGetSedesAsync());
               }).catch((err) => {
-                showError('Error al crear la empresa')
+                showError('Error al crear la sede')
               });
             }}
           >
@@ -110,65 +107,39 @@ const EmpresaModal = () => {
             }) => (
               <form className="grid grid-cols-2" onSubmit={handleSubmit}>
                 <div className="col-span-2 mb-4">
-                  {/* Nombre Empresa */}
+                  {/* Nombre sede */}
                   <div className="input-group mb-2">
-                    <label htmlFor="">Nombre Empresa</label>
+                    <label htmlFor="">Nombre sede</label>
                     <Input
                       type="text"
-                      className={`form-control w-full ${values.nombre_empresa && errors.nombre_empresa ? "is-invalid" : "is-valid"}`}
-                      name="nombre_empresa"
+                      className={`form-control w-full ${values.nombre_sede && errors.nombre_sede ? "is-invalid" : "is-valid"}`}
+                      name="nombre_sede"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      value={values.nombre_empresa}
+                      value={values.nombre_sede}
                     />
                     <div className="invalid-feedback text-red-500 text-xs" style={{ display: "block" }}>
-                      {errors.nombre_empresa && submitCount > 0 && errors.nombre_empresa}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-12 gap-2">
-
-
-                    {/* NIT */}
-                    <div className="col-span-9 lg:col-span-10 input-group mb-2">
-                      <label htmlFor="">NIT</label>
-                      <Input
-                        type="text"
-                        className={`form-control w-full ${values.nit && errors.nit ? "is-invalid" : "is-valid"}`}
-                        name="nit"
-                        onChange={(e) => {
-                          handleChange(e);
-                          const nit = e.target.value;
-                          if (nit.length >= 8) {
-                            const dvCalculado = calcularDV(nit);
-                            setFieldValue("dv", dvCalculado);  // Actualizamos el DV automáticamente
-                          }
-                        }}
-                        onBlur={handleBlur}
-                        value={values.nit}
-                      />
-                      <div className="invalid-feedback text-red-500 text-xs" style={{ display: "block" }}>
-                        {errors.nit && submitCount > 0 && errors.nit}
-                      </div>
-                    </div>
-                    {/* DV */}
-                    <div className=" col-span-2 w-16 max-w-[32px] rounded-lg   overflow-hidden mb-2">
-                      <label htmlFor="">DV</label>
-                      <Input
-                        type="number"
-                        disabled
-                        className={`form-control border-2  border-gray-700 w-16 ${values.dv && errors.dv ? "is-invalid" : "is-valid"}`}
-                        name="dv"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.dv}
-                      />
-                      <div className="invalid-feedback text-red-500 text-xs" style={{ display: "block" }}>
-                        {errors.dv && submitCount > 0 && errors.dv}
-                      </div>
+                      {errors.nombre_sede && submitCount > 0 && errors.nombre_sede}
                     </div>
                   </div>
 
 
+
+                  {/* Codigo */}
+                  <div className="input-group mb-2">
+                    <label htmlFor="">Código</label>
+                    <Input
+                      type="text"
+                      className={`form-control w-full ${values.nit && errors.nit ? "is-invalid" : "is-valid"}`}
+                      name="nit"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.nit}
+                    />
+                    <div className="invalid-feedback text-red-500 text-xs" style={{ display: "block" }}>
+                      {errors.nit && submitCount > 0 && errors.nit}
+                    </div>
+                  </div>
                   {/* Ciudad */}
                   <div className="input-group mb-2">
                     <label htmlFor="">Ciudad</label>
@@ -187,65 +158,75 @@ const EmpresaModal = () => {
 
                   {/* Dirección */}
                   <div className="input-group mb-2">
-                    <label htmlFor="">Dirección</label>
+                    <label htmlFor="">Dirección local</label>
                     <Input
                       type="text"
-                      className={`form-control w-full ${values.direccion && errors.direccion ? "is-invalid" : "is-valid"}`}
-                      name="direccion"
+                      className={`form-control w-full ${values.direccion_local && errors.direccion_local ? "is-invalid" : "is-valid"}`}
+                      name="direccion_local"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      value={values.direccion}
+                      value={values.direccion_local}
                     />
                     <div className="invalid-feedback text-red-500 text-xs" style={{ display: "block" }}>
-                      {errors.direccion && submitCount > 0 && errors.direccion}
+                      {errors.direccion_local && submitCount > 0 && errors.direccion_local}
                     </div>
                   </div>
-
+                  {/* Centro comercial */}
+                  <div className="input-group mb-2">
+                    <label htmlFor="">Centro comercial</label>
+                    <Input
+                      type="text"
+                      className={`form-control w-full ${values.centro_comercial && errors.centro_comercial ? "is-invalid" : "is-valid"}`}
+                      name="centro_comercial"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.centro_comercial}
+                    />
+                    <div className="invalid-feedback text-red-500 text-xs" style={{ display: "block" }}>
+                      {errors.centro_comercial && submitCount > 0 && errors.centro_comercial}
+                    </div>
+                  </div>
                   {/* Teléfono */}
                   <div className="input-group mb-2">
-                    <label htmlFor="">Teléfono</label>
+                    <label htmlFor="">Celular</label>
                     <Input
                       type="text"
-                      className={`form-control w-full ${values.telefono && errors.telefono ? "is-invalid" : "is-valid"}`}
-                      name="telefono"
+                      className={`form-control w-full ${values.celular && errors.celular ? "is-invalid" : "is-valid"}`}
+                      name="celular"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      value={values.telefono}
+                      value={values.celular}
                     />
                     <div className="invalid-feedback text-red-500 text-xs" style={{ display: "block" }}>
-                      {errors.telefono && submitCount > 0 && errors.telefono}
+                      {errors.celular && submitCount > 0 && errors.celular}
                     </div>
                   </div>
 
-                  {/* Correo */}
-                  <div className="input-group mb-2">
-                    <label htmlFor="">Correo</label>
-                    <Input
-                      type="text"
-                      className={`form-control w-full ${values.correo && errors.correo ? "is-invalid" : "is-valid"}`}
-                      name="correo"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      value={values.correo}
-                    />
-                    <div className="invalid-feedback text-red-500 text-xs" style={{ display: "block" }}>
-                      {errors.correo && submitCount > 0 && errors.correo}
-                    </div>
-                  </div>
+
 
                   {/* Contacto */}
                   <div className="input-group mb-2">
-                    <label htmlFor="">Contacto</label>
-                    <Input
-                      type="text"
-                      className={`form-control w-full ${values.contacto && errors.contacto ? "is-invalid" : "is-valid"}`}
-                      name="contacto"
-                      onChange={handleChange}
+                    <label htmlFor="">Empresa</label>
+                    <Select
+                      name="empresa_id"
+                      value={values.empresa_id}
+                      onChange={(value) => {
+                        setFieldValue("empresa_id", value);
+                        const empresaSeleccionada = empresas.find(emp => emp.id == value);
+                        if (empresaSeleccionada) {
+                          setFieldValue("nombre_empresa", empresaSeleccionada.nombre_empresa);
+                        }
+                      }}
                       onBlur={handleBlur}
-                      value={values.contacto}
-                    />
+                    >
+                      {empresas.map((empresa, i) => (
+                        <Option key={i} value={empresa.id}>
+                          {empresa.nombre_empresa}
+                        </Option>
+                      ))}
+                    </Select>
                     <div className="invalid-feedback text-red-500 text-xs" style={{ display: "block" }}>
-                      {errors.contacto && submitCount > 0 && errors.contacto}
+                      {errors.empresa_id && submitCount > 0 && errors.empresa_id}
                     </div>
                   </div>
 
@@ -268,7 +249,7 @@ const EmpresaModal = () => {
                   </div> */}
                 </div>
 
-                <div className="col-span-2 flex justify-center">
+                <div className="col-span-2 flex gap-2 justify-center">
                   <Button
                     type="submit"
                     className="text-base bg-secondary hover:bg-blue-800 text-white py-1 px-6 mx-3 hover:rounded-full"
@@ -290,9 +271,10 @@ const EmpresaModal = () => {
                   >
                     Cancelar
                   </Button>
+
                 </div>
                 <div className="col-span-2 flex justify-center">
-                  <Typography color="red">{statusModal == 'fail' && 'Error al crear la empresa, verifique el nit no este en uso'}</Typography>
+                  <Typography color="red">{ statusModal == 'fail' && 'Error al crear la sede, verifique el el código no este en uso'}</Typography>
                 </div>
               </form>
             )}
@@ -303,4 +285,4 @@ const EmpresaModal = () => {
   );
 };
 
-export default EmpresaModal;
+export default SedeModal;

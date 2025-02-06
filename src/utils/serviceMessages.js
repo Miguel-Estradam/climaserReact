@@ -21,6 +21,7 @@ export const showError = (message) => {
     title: 'Oops',
     html: message,
     icon: 'error',
+    confirmButtonColor:"#213c81",
     confirmButtonText: 'Ok',
   });
 };

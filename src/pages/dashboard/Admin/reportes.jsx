@@ -48,7 +48,7 @@ export function ResportesPageA() {
             <Typography className="text-2xl" variant="h6" color="white">
               Reportes
             </Typography>
-            <Button color="white">{ statusSedes == "success" && <ProveedorModal/>}</Button>
+          { statusSedes == "success" && <ProveedorModal/>}
           </CardHeader>
           {statusPreveedores == "success" ?
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_URL } from '@/utils/urls';
+import { showError } from "@/utils/serviceMessages";
 
 export const createSede = async (sede) => {
 
@@ -7,21 +8,28 @@ export const createSede = async (sede) => {
         const data = {
             "nombre_sede": sede.nombre_sede,
             "nit": sede.nit,
+            "dv": sede.dv,
             "ciudad": sede.ciudad,
+            "celular": sede.celular,
             "centro_comercial": sede.centro_comercial,
             "equipos": sede.equipos.toString(),
             "direccion_local": sede.direccion_local,
             "nombre_empresa": sede.nombre_empresa,
             "empresa_id": typeof sede.empresa_id === 'string' ? parseInt(sede.empresa_id) : sede.empresa_id,
-            "created_at": sede.created_at
+
         }
 
 
         console.log(data)
         const response = await axios.post(API_URL + "/sedes", data);
+        if (response.data.error) {
+            showError(response.data.error)
+        }
         return response.data;
     } catch (error) {
         console.error('Error creating sede', error);
+        showError(`Error al crear la sede, verifica que el código no este en uso o este repetido`)
+
         throw error;
     }
 }
@@ -41,6 +49,8 @@ export const getSedes = async () => {
         return response.data;
     } catch (error) {
         console.error('Error fetching sedes', error);
+
+        showError(`${error?.response.data.detail}`)
         throw error;
     }
 }
@@ -71,23 +81,32 @@ export const getSede = async (id) => {
 }
 
 // Actualizar una sede
-export const updateSede = async (id, sede) => {
-    const data = {
-        "nombre_sede": sede.nombre_sede,
-        "nit": sede.nit,
-        "ciudad": sede.ciudad,
-        "centro_comercial": sede.centro_comercial,
-        "equipos":  typeof sede.equipos == 'string' ? sede.equipos.split(",") : empresa.equipos,
-        "direccion_local": sede.direccion_local,
-        "nombre_empresa": sede.nombre_empresa,
-        "empresa_id": typeof sede.empresa_id === 'string' ? parseInt(sede.empresa_id) : sede.empresa_id,
-        "created_at": sede.created_at
-    }
+export const updateSede = async (sede, id) => {
+  
     try {
+          console.log("entrooo")
+     const data = {
+            "nombre_sede": sede.nombre_sede,
+            "nit": sede.nit,
+            "dv": sede.dv,
+            "ciudad": sede.ciudad,
+            "celular": sede.celular,
+            "centro_comercial": sede.centro_comercial,
+            "equipos": sede.equipos.toString(),
+            "direccion_local": sede.direccion_local,
+            "nombre_empresa": sede.nombre_empresa,
+            "empresa_id": typeof sede.empresa_id === 'string' ? parseInt(sede.empresa_id) : sede.empresa_id,
+
+        }
         const response = await axios.put(`${API_URL + "/sedes"}/${id}`, data);
+          if (response.data.error) {
+            showError(response.data.error)
+        }
         return response.data;
     } catch (error) {
         console.error('Error updating sede', error);
+
+        showError(`${error?.response.data.detail}`)
         throw error;
     }
 }
@@ -97,8 +116,8 @@ export const deleteSede = async (id) => {
     const sedeId = typeof id === 'string' ? parseInt(id) : id
     try {
         const response = await axios.delete(`${API_URL + "/sedes"}/${sedeId}`);
-        if (response.status == 400) {
-            showError("Existen sedes vinculadas")
+        if (response.data.error) {
+            showError(response.data.error)
         }
         return response.data;
     } catch (error) {

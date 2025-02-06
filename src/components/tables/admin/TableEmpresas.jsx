@@ -2,10 +2,12 @@ import { Button, Input, Menu, MenuHandler, MenuItem, MenuList, Typography } from
 import React, { useEffect, useRef, useState } from 'react'
 import Pagination from '@/share/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
-import { getEmpresasQuery, setEmpresaToEdit, setFormAction, setShowModal } from '@/redux/slices/empresasSlice';
+import { fetchGetEmpresasAsync, getEmpresasQuery, setEmpresaToEdit, setFormAction, setShowModal } from '@/redux/slices/empresasSlice';
 import { EllipsisVerticalIcon, HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
 
 import { formatDate } from '@/hooks/formatDate';
+import { deleteEmpresa } from '@/services/empresasService';
+import Swal from 'sweetalert2';
 const TableEmpresas = () => {
 
     const dispatch = useDispatch();
@@ -30,7 +32,27 @@ const TableEmpresas = () => {
     useEffect(() => {
         activePag.current = 0;
         setData(empresas.slice(0 * sort, (0 + 1) * sort));
-      }, [query]);
+    }, [query]);
+    
+     const onClickDeleteEmpresa = (id) => {
+        Swal.fire({
+          title: "¿Estas seguro?",
+          text: "Una vez eliminado, ¡no podrá recuperar el Empresa!",
+          icon: "warning",
+          showCloseButton: true,
+          showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+          cancelButtonColor:"#000",
+          confirmButtonText: "Eliminar",
+          cancelButtonText: "Cancelar",
+        }).then((res) => {
+          if (res.isConfirmed) {
+            deleteEmpresa(id).then(() => {
+              dispatch(fetchGetEmpresasAsync());
+            });
+          }
+        });
+      };
     return (
         <><div className=' my-4 flex justify-end'>
                         <div className="mr-auto md:mr-4 md:w-56">
@@ -65,7 +87,7 @@ const TableEmpresas = () => {
                                 }`;
 
                             return (
-                                <tr key={empresa.nombre_empresa}>
+                                <tr key={empresa.nombre_empresa +key}>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
                                             {empresa.nombre_empresa}
@@ -93,7 +115,7 @@ const TableEmpresas = () => {
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {empresa.tiendas_vinculadas.length}
+                                            {empresa.tiendas_vinculadas[0] =="" ? 0:empresa.tiendas_vinculadas.length}
                                         </Typography>
                                     </td>
                                     <td className={className}>
@@ -112,11 +134,11 @@ const TableEmpresas = () => {
                                         </Typography>
                                     </td>
                                     
-                                    <td className={className + ' flex justify-center'}>
-                                        <Menu>
-                                            <MenuHandler>
-                                                <Button color="indigo" className='p-2'>   <EllipsisVerticalIcon className=" h-5 w-5 " /></Button>
-                                             
+                                    <td className={className }>
+                                        <Menu >
+                                            <MenuHandler className="flex justify-center h-full">
+                                                <div><Button color="indigo" className='p-2 '>   <EllipsisVerticalIcon className=" h-5 w-5 " /></Button>
+                                             </div>
                                             </MenuHandler>
                                             <MenuList>
                                                 <MenuItem onClick={() => {
@@ -125,7 +147,7 @@ const TableEmpresas = () => {
                                                     dispatch(setFormAction("update"));
                                                 }}>Editar empresa</MenuItem>
                                                 <MenuItem onClick={() => {
-                                                    // dispatch(fetchGetProveedorAsync(true));
+                                                    onClickDeleteEmpresa(empresa.id)
                                                 }}>Eliminar</MenuItem>
                                             </MenuList>
 

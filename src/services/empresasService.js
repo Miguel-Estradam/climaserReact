@@ -3,7 +3,6 @@ import { API_URL } from '@/utils/urls';
 import { showError } from "@/utils/serviceMessages";
   // Crear una nueva empresa
   export const createEmpresa = async (empresa) => {
-    console.log(typeof empresa.dv)
     // const dv = typeof empresa.dv == string ? parseInt(empresa.dv):empresa.dv
     empresa.tiendas_vinculadas = empresa.tiendas_vinculadas.toString();
     console.log(empresa)
@@ -16,7 +15,7 @@ import { showError } from "@/utils/serviceMessages";
       return response.data;
     } catch (error) {
       
-      showError('Error al crear la empresa')
+      // showError('Error al crear la empresa')
       console.error("Error creating empresa", error);
       throw error;
     }
@@ -66,10 +65,17 @@ import { showError } from "@/utils/serviceMessages";
   // Eliminar una empresa
   export const deleteEmpresa= async (id) => {
     try {
-      const response = await axios.delete(`${API_URL}/empresas/${id}`);
+      
+      const empresaId = typeof id === 'string' ? parseInt(id) : id
+      const response = await axios.delete(`${API_URL}/empresas/${empresaId}`);
+       if (response.data.error) {
+        showError(response.data.error)
+      }
       return response.data;
     } catch (error) {
       console.error("Error deleting empresa", error);
+      
+      showError(`${error?.response.data.detail}`)
       throw error;
     }
   }

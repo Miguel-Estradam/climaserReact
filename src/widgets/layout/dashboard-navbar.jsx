@@ -37,14 +37,14 @@ export function DashboardNavbar() {
       color={fixedNavbar ? "white" : "transparent"}
       className={`rounded-xl transition-all ${
         fixedNavbar
-          ? "sticky top-4 z-40 py-3 shadow-md shadow-blue-gray-500/5"
+          ? "sticky lg:relative top-4 z-40 py-3 shadow-md shadow-blue-gray-500/5"
           : "px-0 py-1"
       }`}
       fullWidth
       blurred={fixedNavbar}
     >
       <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
-        {/* <div className="capitalize">
+        <div className="capitalize">
           <Breadcrumbs
             className={`bg-transparent p-0 transition-all ${
               fixedNavbar ? "mt-1" : ""
@@ -67,10 +67,10 @@ export function DashboardNavbar() {
               {page}
             </Typography>
           </Breadcrumbs>
-          <Typography variant="h6" color="blue-gray">
+          {/* <Typography variant="h6" color="blue-gray">
             {page}
-          </Typography>
-        </div> */}
+          </Typography> */}
+        </div>
         <div className="flex items-center justify-end">
           {/* <div className="mr-auto md:mr-4 md:w-56">
             <Input label="Search" />

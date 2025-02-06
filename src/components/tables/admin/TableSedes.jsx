@@ -1,13 +1,15 @@
-import { Card, CardBody, CardHeader, Chip, Input, Typography } from '@material-tailwind/react';
+import { Button, Card, CardBody, CardHeader, Chip, Input, Menu, MenuHandler, MenuItem, MenuList, Typography } from '@material-tailwind/react';
 import React, { useEffect, useRef, useState } from 'react'
 import Pagination from '@/share/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSedesQuery } from '@/redux/slices/sedesSlice';
-import { HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { fetchGetSedesAsync, getSedesQuery, setFormAction, setSedeToEdit, setShowModal } from '@/redux/slices/sedesSlice';
+import { EllipsisVerticalIcon, HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { formatDate } from '@/hooks/formatDate';
+import Swal from 'sweetalert2';
+import { deleteSede } from '@/services/sedesServices';
 const TableSedes = () => {
 
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
     const [query, setQuery] = useState("");
     const sort = 5;
@@ -29,7 +31,26 @@ const TableSedes = () => {
       useEffect(() => {
     activePag.current = 0;
     setData(sedes.slice(0 * sort, (0 + 1) * sort));
-  }, [query]);
+      }, [query]);
+    const onClickDeleteSede = (id) => {
+            Swal.fire({
+              title: "¿Estas seguro?",
+              text: "Una vez eliminado, ¡no podrá recuperar el Empresa!",
+              icon: "warning",
+              showCloseButton: true,
+              showCancelButton: true,
+                confirmButtonColor: "#dc3545",
+              cancelButtonColor:"#000",
+              confirmButtonText: "Eliminar",
+              cancelButtonText: "Cancelar",
+            }).then((res) => {
+              if (res.isConfirmed) {
+                deleteSede(id).then(() => {
+                  dispatch(fetchGetSedesAsync());
+                });
+              }
+            });
+          };
     return (
         <>
             <div className=' my-4 flex justify-end'>
@@ -41,7 +62,7 @@ const TableSedes = () => {
             <table className="w-full min-w-[640px] table-auto">
                 <thead>
                     <tr>
-                        {["Nombre", "Nit","Ciudad", "Centro Comercial", "Celular", "Equipos", "Dirección", "Nombre Empresa",""].map((el) => (
+                        {["Nombre", "Código","Ciudad", "Centro Comercial", "Celular", "Equipos", "Dirección", "Nombre Empresa","opciones"].map((el) => (
                             <th
                                 key={el}
                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -58,65 +79,77 @@ const TableSedes = () => {
                 </thead>
                 <tbody>
                     {data.map(
-                        ({ nombre_sede,nit,dv, ciudad, centro_comercial, celular, equipos, direccion_local, nombre_empresa }, key) => {
+                        (sede, key) => {
                             const className = `py-3 px-5 ${key === sedes.length - 1
                                 ? ""
                                 : "border-b border-blue-gray-50"
                                 }`;
 
                             return (
-                                <tr key={nombre_sede}>
+                                <tr key={sede.nombre_sede+key}>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {nombre_sede}
+                                            {sede.nombre_sede}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {nit}
+                                            {sede.nit}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {ciudad}
+                                            {sede.ciudad}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {centro_comercial}
+                                            {sede.centro_comercial}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {celular}
+                                            {sede.celular}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {equipos.length}
+                                            {sede.equipos[0] == ""?0: sede.equipos.length}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {direccion_local}
+                                            {sede.direccion_local}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {nombre_empresa}
+                                            {sede.nombre_empresa}
                                         </Typography>
                                     </td>
                                  
                                    
                                     <td className={className}>
-                                        <Typography
-                                            as="a"
-                                            href="#"
-                                            className="text-base flex gap-2 font-normal text-blue-gray-600"
-                                        >
-                                            <PencilIcon className='h-5 w-5' />
-                                            <TrashIcon className='w-5 h-5' />
-                                        </Typography>
+                                        <Menu >
+                                            <MenuHandler className="flex justify-center h-full">
+                                                <div><Button color="indigo" className='p-2 '>   <EllipsisVerticalIcon className=" h-5 w-5 " /></Button>
+                                             </div>
+                                            </MenuHandler>
+                                            <MenuList>
+                                                <MenuItem onClick={() => {
+                                                    dispatch(setShowModal(true));
+                                                    dispatch(setSedeToEdit(sede))
+                                                    // dispatch(setFormAction("update"));
+                                                }}>Editar sede</MenuItem>
+                                                <MenuItem onClick={() => {
+                                                    onClickDeleteSede(sede.id)
+                                                }}>Eliminar</MenuItem>
+                                                <MenuItem onClick={() => {
+                                                    // onClickDeleteEmpresa(empresa.id)
+                                                }}>Ver equipos</MenuItem>
+                                            </MenuList>
+
+                                        </Menu>
 
                                     </td>
 

@@ -2,8 +2,10 @@ import { Button, Card, CardBody, CardHeader, Chip, Input, Menu, MenuHandler, Men
 import React, { useEffect, useRef, useState } from 'react'
 import Pagination from '@/share/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProveedorQuery, setFormAction, setProveedorToEdit, setShowModal } from '@/redux/slices/proveedoresSlice';
+import { fetchGetProveedorAsync, getProveedorQuery, setFormAction, setProveedorToEdit, setShowModal } from '@/redux/slices/proveedoresSlice';
 import { EllipsisVerticalIcon, HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { deleteProveedor } from '@/services/proveedoresService';
+import Swal from 'sweetalert2';
 const TableProveedores = () => {
 
     const dispatch = useDispatch();
@@ -29,6 +31,25 @@ const TableProveedores = () => {
         activePag.current = 0;
         setData(proveedores.slice(0 * sort, (0 + 1) * sort));
     }, [query]);
+    const onClickDeleteProveedor = (id) => {
+        Swal.fire({
+            title: "¿Estas seguro?",
+            text: "Una vez eliminado, ¡no podrá recuperar el Empresa!",
+            icon: "warning",
+            showCloseButton: true,
+            showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#000",
+            confirmButtonText: "Eliminar",
+            cancelButtonText: "Cancelar",
+        }).then((res) => {
+            if (res.isConfirmed) {
+                deleteProveedor(id).then(() => {
+                    dispatch(fetchGetProveedorAsync());
+                });
+            }
+        });
+    };
     return (
         <>
             <div className=' my-4 flex justify-end'>
@@ -64,7 +85,7 @@ const TableProveedores = () => {
                                 }`;
 
                             return (
-                                <tr key={proveedor.nombre_proveedor}>
+                                <tr key={proveedor.nombre_proveedor+key}>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
                                             {proveedor.nombre_proveedor}
@@ -98,11 +119,11 @@ const TableProveedores = () => {
                                             className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                         />
                                     </td> */}
-                                    <td className={className +'flex justify-center'}>
-                                        <Menu>
+                                    <td className={className }>
+                                        <Menu className="flex justify-center">
                                             <MenuHandler>
-                                             <Button color="indigo" className='p-2'>   <EllipsisVerticalIcon className=" h-5 w-5 " /></Button>
-                                                                                          
+                                                <Button color="indigo" className='p-2'>   <EllipsisVerticalIcon className=" h-5 w-5 " /></Button>
+
                                             </MenuHandler>
                                             <MenuList>
                                                 <MenuItem onClick={() => {
@@ -111,7 +132,7 @@ const TableProveedores = () => {
                                                     dispatch(setFormAction("update"));
                                                 }}>Editar Proveedor</MenuItem>
                                                 <MenuItem onClick={() => {
-                                                    // dispatch(fetchGetProveedorAsync(true));
+                                                    onClickDeleteProveedor(proveedor.id)
                                                 }}>Eliminar</MenuItem>
                                             </MenuList>
 

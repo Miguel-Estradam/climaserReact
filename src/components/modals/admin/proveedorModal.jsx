@@ -93,8 +93,8 @@ const ProveedorModal = () => {
     <>
       <Menu>
         <MenuHandler className="px-2 py-1 m-0">
-          <Button color="white" className="p-1 m-0"><EllipsisVerticalIcon className="h-5 w-5"/></Button>
-        </MenuHandler>
+                 <Button color="white" className="p-1 m-0"><EllipsisVerticalIcon className="h-5 w-5" /></Button>
+               </MenuHandler>
         <MenuList>
           <MenuItem onClick={() => {
             dispatch(setShowModal(true));

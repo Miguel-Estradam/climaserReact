@@ -18,6 +18,7 @@ import TableEmpresas from "@/components/tables/admin/TableEmpresas";
 import { fetchGetSedesAsync, getStatusSedes } from "@/redux/slices/sedesSlice";
 import TableSedes from "@/components/tables/admin/TableSedes";
 import EmpresaModal from "@/components/modals/admin/empresaModal";
+import SedeModal from "@/components/modals/admin/sedeModal";
 
 export function EmpresasPage() {
 
@@ -43,11 +44,10 @@ export function EmpresasPage() {
             <Typography className="text-2xl" variant="h6" color="white">
               Empresas
             </Typography>
-            
-           { statusSedes == "success" && <EmpresaModal/>}
+           { statusEmpresas == "success" && <EmpresaModal/>}
           </CardHeader>
           {statusEmpresas == "success" ?
-            <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+            <CardBody className="overflow-x-scroll min-h-[300px] px-0 pt-0 pb-2">
 
               <TableEmpresas>
               </TableEmpresas>
@@ -61,16 +61,16 @@ export function EmpresasPage() {
             <Typography className="text-2xl" variant="h6" color="white">
               Sedes
             </Typography>
-            <Button color="white"> Crear Sede</Button>
+            <SedeModal></SedeModal>
           </CardHeader>
           {statusSedes == "success" ?
-            <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+            <CardBody className="overflow-x-scroll  px-0 pt-0 pb-2">
 
               <TableSedes>
               </TableSedes>
             </CardBody>
 
-            : <div className=" w-full h-full min-h-[200px] flex justify-center items-center">
+            : <div className=" w-full h-full min-h-[400px] flex justify-center items-center">
               <Spinner width={100} /></div>}
         </Card>
       </div>

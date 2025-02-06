@@ -24,7 +24,7 @@ export const fetchAddSedeAsync = createAsyncThunk("auth/fetchAddSedeAsync", asyn
   } = getState();
   const res = await (formAction === "add"
     ? createSede(props)
-    : updateSede({ ...props, id }));
+    : updateSede({ ...props }, id));
   return res;
 });
 
@@ -32,7 +32,7 @@ export const fetchGetSedesAsync = createAsyncThunk(
   "Sedes/fetchGetSedesAsync",
   async (forceFetch) => {
     const response = await getSedes();
-    console.log(response)
+    // console.log(response)
     // setCacheValue("Sedess", response, 5);
     return response;
   }
@@ -55,6 +55,7 @@ export const SedesSlice = createSlice({
     },
     setShowModal: (state, action) => {
       state.showModal = action.payload;
+      state.statusModal = 'init'
     },
   },
   extraReducers: (builder) => {
@@ -86,20 +87,21 @@ export const SedesSlice = createSlice({
 });
 
 // Export actions
-export const { setFormAction, setSedesToEdit, setShowModal } =
+export const { setFormAction, setSedeToEdit, setShowModal } =
   SedesSlice.actions;
 // Definición de selectores
 export const getSedeFields = (state) => {
   return {
     nombre_sede: state.sede.sede.nombre_sede,
     nit: state.sede.sede.nit,
+    dv: state.sede.sede.dv,
     ciudad: state.sede.sede.ciudad,
-    direccion: state.sede.sede.direccion,
-    telefono: state.sede.sede.telefono,
-    correo: state.sede.sede.correo,
-    contacto: state.sede.sede.contacto,
-    tiendas_vinculadas: state.sede.sede.tiendas_vinculadas,
-    created_at: state.sede.precio,
+    celular: state.sede.sede.celular,
+    centro_comercial: state.sede.sede.centro_comercial,
+    equipos: state.sede.sede.equipos,
+    direccion_local: state.sede.sede.direccion_local,
+    nombre_empresa: state.sede.sede.nombre_empresa,
+    empresa_id: state.sede.sede.empresa_id,
   };
 };
 export const getSede = (state) => state.sede.sede;
@@ -112,8 +114,10 @@ export const getSedesQuery = (state, query) => {
   if (query) {
     return state.sede.sedes.filter(
       (d) =>
-        d.nombre_Sedes.toLowerCase().includes(query) ||
+        d.nombre_sede.toLowerCase().includes(query) ||
         d.ciudad.toLowerCase().includes(query) ||
+        d.nit.toLowerCase().includes(query) ||
+        d.direccion_local.toLowerCase().includes(query) ||
         d.centro_comercial.toLowerCase().includes(query)
     );
   } else {

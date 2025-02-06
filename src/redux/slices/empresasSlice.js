@@ -32,7 +32,7 @@ export const fetchGetEmpresasAsync = createAsyncThunk(
   async (forceFetch) => {
       const response = await getEmpresas();
       console.log(response)
-    // setCacheValue("Empresas", response, 5);
+    // setCacsheValue("Empresas", response, 5);
     return response;
   }
 );
@@ -56,6 +56,7 @@ export const EmpresaSlice = createSlice({
     },
     setShowModal: (state, action) => {
       state.showModal = action.payload;
+      state.statusModal = "init"
     },
   },
   extraReducers: (builder) => {
@@ -116,7 +117,9 @@ export const getEmpresasQuery = (state , query) => {
       (d) =>
         d.nombre_empresa.toLowerCase().includes(query) ||
         d.ciudad.toLowerCase().includes(query) ||
-        d.centro_comercial.toLowerCase().includes(query) 
+        d.correo.toLowerCase().includes(query) ||
+        d.nit.toLowerCase().includes(query) ||
+        d.direccion.toLowerCase().includes(query) 
     );
   } else {
     return state.empresa.empresas;
