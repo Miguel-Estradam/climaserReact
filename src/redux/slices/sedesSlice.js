@@ -116,6 +116,7 @@ export const getSedesQuery = (state, query) => {
       (d) =>
         d.nombre_sede.toLowerCase().includes(query) ||
         d.ciudad.toLowerCase().includes(query) ||
+        d.celular.toLowerCase().includes(query) ||
         d.nit.toLowerCase().includes(query) ||
         d.direccion_local.toLowerCase().includes(query) ||
         d.centro_comercial.toLowerCase().includes(query)
