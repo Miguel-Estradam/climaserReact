@@ -1,5 +1,5 @@
 
-import { createEquipo, getEquipos } from '@/services/equiposService';
+import { getEquipos,createEquipo } from '@/services/equiposService';
 import { createSede, getSedes, updateSede } from '@/services/sedesServices';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
@@ -17,6 +17,7 @@ const initialState = {
   showModal2: false,
   showModalAll: false,
   equipo: {},
+  sede:{},
 
   formAction: "add",
   statusEquipos: "idle",
@@ -25,7 +26,7 @@ const initialState = {
 };
 export const fetchAddEquipoAsync = createAsyncThunk("equipo/fetchAddEquipoAsync", async (props, { getState }) => {
   const {
-    sede: { formAction, id },
+    equipo: { formAction, id },
   } = getState();
   const res = await (formAction === "add"
     ? createEquipo(props)
@@ -35,12 +36,15 @@ export const fetchAddEquipoAsync = createAsyncThunk("equipo/fetchAddEquipoAsync"
 
 export const fetchGetEquiposAsync = createAsyncThunk(
   "Equipos/fetchGetEquiposAsync",
-  async (forceFetch) => {
-    
-    const response = await getEquipos(id);
+  async ({id}) => {
+   
+    console.log("entro---",id)
+    if (id && id != "") {
+      const response = await getEquipos(id);
     // console.log(response)
     // setCacheValue("Sedess", response, 5);
     return response;
+   }else{ return []}
   }
 );
 
@@ -54,31 +58,34 @@ export const EquiposSlice = createSlice({
     ) => {
       state.formAction = action.payload;
     },
-    setSedeToEdit: (state, action) => {
+    setEquipoToEdit: (state, action) => {
       state.id = action.payload.id;
       state.equipo = action.payload
       state.formAction = "update";
     },
     setShowModal: (state, action) => {
-      state.showModal = action.payload.status;  
+      state.showModal = action.payload;  
       state.statusModal = 'init'
     },
     setShowModal2: (state, action) => {
+      console.log(action.payload)
       state.showModal2 = action.payload.status;
-      state.idSede = action.payload.id;
-      state.statusModal = 'init'
+      state.idSede = action.payload.sede ? action.payload.sede.id:"";
+      state.sede = action.payload.sede
+      console.log(state.sede,state.idSede)
+      state.statusModal2 = 'init'
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchGetEquiposAsync.pending, (state) => {
-        state.statusSedes = "loading";
+        state.statusEquipos = "loading";
       })
       .addCase(
         fetchGetEquiposAsync.fulfilled,
         (state, action) => {
-          state.sedes = action.payload;
-          state.statusSedes = "success";
+          state.equipos = action.payload;
+          state.statusEquipos = "success";
         }
       )
       .addCase(fetchGetEquiposAsync.rejected, (state) => {
@@ -98,39 +105,39 @@ export const EquiposSlice = createSlice({
 });
 
 // Export actions
-export const { setFormAction, setSedeToEdit, setShowModal, se } =
+export const { setFormAction, setEquipoToEdit, setShowModal, setShowModal2 } =
   EquiposSlice.actions;
 // Definición de selectores
 export const getSedeFields = (state) => {
   return {
-    marca: state.equipo.equipo.nombre_sede,
-    modelo: state.equipo.equipo.nit,
-    modelo_condensadora: state.equipo.equipo.dv,
-    serie: state.equipo.equipo.ciudad,
-    tipo: state.equipo.equipo.celular,
-    capacidad: state.equipo.equipo.centro_comercial,
-    tipo_refrigerante: state.equipo.equipo.equipos,
-    tipo_refrigerante: state.equipo.equipo.direccion_local,
-    observaciones: state.equipo.equipo.nombre_empresa,
-    sede_id: state.equipo.equipo.empresa_id,
+    marca: state.equipo.equipo.marca,
+    modelo: state.equipo.equipo.modelo,
+    modelo_condensadora: state.equipo.equipo.modelo_condensadora,
+    serie: state.equipo.equipo.serie,
+    tipo: state.equipo.equipo.tipo,
+    capacidad: state.equipo.equipo.capacidad,
+    tipo_refrigerante: state.equipo.equipo.tipo_refrigerante,
+    observaciones: state.equipo.equipo.observaciones,
+    sede_id: state.equipo.equipo.sede_id,
   };
 };
-export const getSede = (state) => state.equipo.equipo;
+export const getEquipo = (state) => state.equipo.equipo;
 // export const getSedesImage = (state) => state.equipo.imagen;
 export const getShowModal = (state) => state.equipo.showModal;
 export const getShowModal2 = (state) => state.equipo.showModal2;
 export const getFormAction = (state) => state.equipo.formAction;
-export const getStatusSedes = (state) =>
-  state.equipo.statusSedes;
-export const getSedesQuery = (state, query) => {
+export const getSedeEquipo = (state) => state.equipo.sede;
+export const getStatusEquipos = (state) =>
+  state.equipo.statusEquipos;
+export const getEquiposQuery = (state, query) => {
   if (query) {
     return state.equipo.equipos.filter(
       (d) =>
-        d.nombre_sede.toLowerCase().includes(query) ||
-        d.ciudad.toLowerCase().includes(query) ||
-        d.nit.toLowerCase().includes(query) ||
-        d.direccion_local.toLowerCase().includes(query) ||
-        d.centro_comercial.toLowerCase().includes(query)
+        d.marca.toLowerCase().includes(query) ||
+        d.modelo.toLowerCase().includes(query) ||
+        d.modelo_condensadora.toLowerCase().includes(query) ||
+        d.serie.toLowerCase().includes(query) ||
+        d.tipo.toLowerCase().includes(query)
     );
   } else {
     return state.equipo.equipos;

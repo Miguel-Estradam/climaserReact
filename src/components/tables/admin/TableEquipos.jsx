@@ -2,37 +2,40 @@ import { Button, Card, CardBody, CardHeader, Chip, Input, Menu, MenuHandler, Men
 import React, { useEffect, useRef, useState } from 'react'
 import Pagination from '@/share/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchGetSedesAsync, getSedesQuery, setFormAction, setSedeToEdit, setShowModal } from '@/redux/slices/sedesSlice';
+import {  getEquiposQuery, setFormAction, setShowModal, setEquipoToEdit, fetchGetEquiposAsync, getSedeEquipo } from '@/redux/slices/equiposSlice';
 import { EllipsisVerticalIcon, HomeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { formatDate } from '@/hooks/formatDate';
 import Swal from 'sweetalert2';
-import { deleteSede } from '@/services/sedesServices';
+import { deleteEquipo } from '@/services/equiposService';
+import { fetchGetSedesAsync } from '@/redux/slices/sedesSlice';
 const TableEquipos = () => {
 
     const dispatch = useDispatch();
 
+    const sede = useSelector(getSedeEquipo);
     const [query, setQuery] = useState("");
     const sort = 5;
-    const sedes = useSelector((state) => getSedesQuery(state, query));
-    const paggination = Array(Math.ceil(sedes.length / sort))
+    const equipos = useSelector((state) => getEquiposQuery(state, query));
+    const paggination = Array(Math.ceil(equipos.length / sort))
         .fill(0)
         .map((_, i) => i + 1);
 
     const activePag = useRef(0);
     const [data, setData] = useState(
-        sedes.slice(activePag.current * sort, (activePag.current + 1) * sort)
+        equipos.slice(activePag.current * sort, (activePag.current + 1) * sort)
     );
     const onChangePagination = (i) => {
         activePag.current = i;
         setData(
-            sedes.slice(activePag.current * sort, (activePag.current + 1) * sort)
+            equipos.slice(activePag.current * sort, (activePag.current + 1) * sort)
         );
     };
-      useEffect(() => {
+    useEffect(() => {
+          console.log(equipos)
     activePag.current = 0;
-    setData(sedes.slice(0 * sort, (0 + 1) * sort));
+    setData(equipos.slice(0 * sort, (0 + 1) * sort));
       }, [query]);
-    const onClickDeleteSede = (id) => {
+    const onClickDeleteEquipo = (id) => {
             Swal.fire({
               title: "¿Estas seguro?",
               text: "Una vez eliminado, ¡no podrá recuperar el Empresa!",
@@ -45,8 +48,9 @@ const TableEquipos = () => {
               cancelButtonText: "Cancelar",
             }).then((res) => {
               if (res.isConfirmed) {
-                deleteSede(id).then(() => {
-                  dispatch(fetchGetSedesAsync());
+                  deleteEquipo(id).then(() => {
+                      dispatch(fetchGetEquiposAsync({id:sede.id}));
+                      dispatch(fetchGetSedesAsync());
                 });
               }
             });
@@ -59,10 +63,11 @@ const TableEquipos = () => {
                         onChange={(e) => setQuery(e.target.value.toLowerCase())} value={query} />
                 </div>
             </div>
-            <table className="w-full min-w-[640px] table-auto">
+            <div className='w-full  overflow-x-scroll border border-gray-400 rounded-md p-2'>
+                <table className="w-full min-w-[640px] table-auto ">
                 <thead>
                     <tr>
-                        {["Nombre", "Código","Ciudad", "Centro Comercial", "Celular", "Equipos", "Dirección", "Nombre Empresa","opciones"].map((el) => (
+                        {["Marca", "Modelo","Modelo condensadora", "Serie", "Tipo", "Capacidad", "Tipo refrigerante", "Observaciones","opciones"].map((el) => (
                             <th
                                 key={el}
                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -79,52 +84,57 @@ const TableEquipos = () => {
                 </thead>
                 <tbody>
                     {data.map(
-                        (sede, key) => {
-                            const className = `py-3 px-5 ${key === sedes.length - 1
+                        (equipo, key) => {
+                            const className = `py-3 px-5 ${key === equipos.length - 1
                                 ? ""
                                 : "border-b border-blue-gray-50"
                                 }`;
 
                             return (
-                                <tr key={sede.nombre_sede+key}>
+                                <tr key={equipo.marca+key}>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {sede.nombre_sede}
+                                            {equipo.marca}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {sede.nit}
+                                            {equipo.modelo}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {sede.ciudad}
+                                            {equipo.modelo_condensadora}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {sede.centro_comercial}
+                                            {equipo.serie}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base  font-normal text-blue-gray-600">
-                                            {sede.celular}
+                                            {equipo.tipo}
+                                        </Typography>
+                                    </td>
+                                    {/* <td className={className}>
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {equipo.equipos[0] == ""?0: equipo.equipos.length}
+                                        </Typography>
+                                    </td> */}
+                                    <td className={className}>
+                                        <Typography className="text-base font-normal text-blue-gray-600">
+                                            {equipo.capacidad}
                                         </Typography>
                                     </td>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {sede.equipos[0] == ""?0: sede.equipos.length}
+                                            {equipo.tipo_refrigerante}
                                         </Typography>
                                     </td>
-                                    <td className={className}>
+                                    <td className={className + "min-w-[250px]"}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {sede.direccion_local}
-                                        </Typography>
-                                    </td>
-                                    <td className={className}>
-                                        <Typography className="text-base font-normal text-blue-gray-600">
-                                            {sede.nombre_empresa}
+                                            {equipo.observaciones}
                                         </Typography>
                                     </td>
                                  
@@ -138,11 +148,11 @@ const TableEquipos = () => {
                                             <MenuList>
                                                 <MenuItem onClick={() => {
                                                     dispatch(setShowModal(true));
-                                                    dispatch(setSedeToEdit(sede))
-                                                    // dispatch(setFormAction("update"));
-                                                }}>Editar sede</MenuItem>
+                                                    dispatch(setEquipoToEdit(equipo))
+                                                    // // dispatch(setFormAction("update"));
+                                                }}>Editar equipo</MenuItem>
                                                 <MenuItem onClick={() => {
-                                                    onClickDeleteSede(sede.id)
+                                                    onClickDeleteEquipo(equipo.id)
                                                 }}>Eliminar</MenuItem>
                                                 <MenuItem onClick={() => {
                                                     // onClickDeleteEmpresa(empresa.id)
@@ -159,6 +169,7 @@ const TableEquipos = () => {
                     )}
                 </tbody>
             </table>
+            </div>
             <div>
                 <Pagination
                     size="xs"

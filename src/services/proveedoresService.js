@@ -40,17 +40,17 @@ export const createProveedor = async (proveedor) => {
 
 // Obtener todos los proveedores
 export const getProveedores = async () => {
-     let proveedores = []
+  let proveedores = []
   try {
-      const response = await axios.get(`${API_URL}/proveedores`);
-        if (response.data) {
-        response.data.map((proveedor, index) => {
-          console.log(typeof proveedor.nombre_sede)
-          proveedores[index] = proveedor
-          proveedores[index].fecha = proveedor.fecha.split("T")[0]
-          proveedores[index].nombre_sede = JSON.parse(proveedor.nombre_sede)
-        })
-      }
+    const response = await axios.get(`${API_URL}/proveedores`);
+    if (response.data) {
+      response.data.map((proveedor, index) => {
+        console.log(typeof proveedor.nombre_sede)
+        proveedores[index] = proveedor
+        proveedores[index].fecha = proveedor.fecha.split("T")[0]
+        proveedores[index].nombre_sede = JSON.parse(proveedor.nombre_sede)
+      })
+    }
     return proveedores;
   } catch (error) {
     console.error('Error al obtener proveedores:', error);
@@ -64,7 +64,10 @@ export const getProveedor = async (email) => {
   try {
     const body = { proveedor_email: email };
     const response = await axios.post(`${API_URL}/proveedor`, body);
-    return response.data;
+    const proveedor = response.data ? response.data : {}
+    proveedor.fecha = proveedor.fecha.split("T")[0]
+    proveedor.nombre_sede = JSON.parse(proveedor.nombre_sede)
+    return proveedor;
   } catch (error) {
     console.error('Error al obtener proveedor:', error);
     showError('Error al obtener proveedor');
@@ -73,11 +76,11 @@ export const getProveedor = async (email) => {
 };
 
 // Actualizar un proveedor
-export const updateProveedor = async ( proveedor) => {
+export const updateProveedor = async (proveedor) => {
   try {
-   
+
     proveedor.nombre_sede = JSON.stringify(proveedor.nombre_sede);
-    console.log(proveedor,"aaaaaaaaaaaaaaa")
+    console.log(proveedor, "aaaaaaaaaaaaaaa")
     const response = await axios.put(`${API_URL}/proveedor/${proveedor.id}`, proveedor);
     showSuccess('Proveedor actualizado');
     return response.data;

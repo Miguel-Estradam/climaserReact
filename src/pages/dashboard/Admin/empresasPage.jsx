@@ -19,6 +19,7 @@ import { fetchGetSedesAsync, getStatusSedes } from "@/redux/slices/sedesSlice";
 import TableSedes from "@/components/tables/admin/TableSedes";
 import EmpresaModal from "@/components/modals/admin/empresaModal";
 import SedeModal from "@/components/modals/admin/sedeModal";
+import EquiposList from "@/components/modals/admin/equiposList";
 
 export function EmpresasPage() {
 
@@ -35,6 +36,7 @@ export function EmpresasPage() {
   }, []);
   return (
     <>
+      <EquiposList/>
       <div className="hidden md:block relative mt-8 h-72 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover	bg-center">
         <div className="absolute inset-0 h-full w-full bg-indigo-900/75" />
       </div>

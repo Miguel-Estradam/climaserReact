@@ -30,11 +30,20 @@ export const fetchAddProveedorAsync = createAsyncThunk("auth/fetchAddProveedorAs
 
 export const fetchGetProveedorAsync = createAsyncThunk(
   "Proveedor/fetchGetProveedorAsync",
-  async (forceFetch) => {
-    const response = await getProveedores();
-    console.log(response)
-    // setCacheValue("Proveedors", response, 5);
-    return response;
+  async (email) => {
+    console.log(email)
+    
+    if (email) {
+      const response = await getProveedorService(email);
+      console.log(response)
+      // setCacheValue("Proveedors", response, 5);
+      return response;
+    } else {
+      const response = await getProveedores();
+      console.log(response)
+      // setCacheValue("Proveedors", response, 5);
+      return response;
+    }
   }
 );
 

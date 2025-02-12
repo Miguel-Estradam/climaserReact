@@ -35,7 +35,7 @@ export const createSede = async (sede) => {
 }
   export const createEquipo= async (equipo)=> {
     try {
-      const response = await this.axiosInstance.post('/equipos', equipo);
+      const response = await axios.post('/equipos', equipo);
       showSuccess('Equipo creado con éxito');
       return response.data;
     } catch (error) {
@@ -46,17 +46,20 @@ export const createSede = async (sede) => {
   }
 export const  getEquipos=async(sedeId)=> {
     try {
-      const response = await this.axiosInstance.get('/sede/' + sedeId);
+        console.log(sedeId)
+      const response = await axios.get(API_URL+'/equipos/sede/' + sedeId);
       if (response.data.length == 0) {
         return []
       }
-      return response.data.map((equipo) => {
-        equipo.capacidad = equipo.capacidad || 0; // Default value for capacity
-        return equipo;
-      });
+    //   return response.data.map((equipo) => {
+    //     equipo.capacidad = equipo.capacidad || 0; // Default value for capacity
+        
+    //   });
+        return response.data;
     } catch (error) {
       console.error('Error al obtener equipos:', error.response.data.detail);
-        showError(`${error?.response.data.detail}`)
+        // showError(`${error?.response.data.detail}`)
+        return[]
       throw error;
     }
   }
@@ -95,16 +98,6 @@ export const sedesForProveedor = async (arrayIds) => {
     }
 }
 
-// Obtener una sede por ID
-export const getSede = async (id) => {
-    try {
-        const response = await axios.get(`${API_URL + "/sedes"}/${id}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching sede', error);
-        throw error;
-    }
-}
 
 // Actualizar una sede
 export const updateSede = async (sede, id) => {
@@ -138,16 +131,18 @@ export const updateSede = async (sede, id) => {
 }
 
 // Eliminar una sede
-export const deleteSede = async (id) => {
-    const sedeId = typeof id === 'string' ? parseInt(id) : id
+export const deleteEquipo = async (id) => {
+    const equipoId = typeof id === 'string' ? parseInt(id) : id
     try {
-        const response = await axios.delete(`${API_URL + "/sedes"}/${sedeId}`);
+        const response = await axios.delete(`${API_URL + "/equipos"}/${equipoId}`);
         if (response.data.error) {
             showError(response.data.error)
         }
         return response.data;
     } catch (error) {
         console.error('Error deleting sede', error);
+        
+        showError(`${error?.response.data.detail}`)
         throw error;
     }
 }

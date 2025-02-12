@@ -5,6 +5,7 @@ import authReducer from "./slices/authSlice"; // Asegúrate de que la ruta es co
 import proveedoresReducer from "./slices/proveedoresSlice"; // Asegúrate de que la ruta es correcta
 import empresasReducer from "./slices/empresasSlice"
 import sedesReducer from "./slices/sedesSlice"
+import equiposReducer from "./slices/equiposSlice"
 // Configuración de persistencia
 const persistConfig = {
     key: "root",
@@ -17,7 +18,8 @@ const rootReducer = combineReducers({
     auth: authReducer,
     proveedor: proveedoresReducer,
     empresa: empresasReducer,
-    sede:sedesReducer
+    sede: sedesReducer,
+    equipo:equiposReducer
 });
 
 // Aplicar persistencia al reducer

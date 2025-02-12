@@ -7,6 +7,8 @@ import { EllipsisVerticalIcon, HomeIcon, PencilIcon, TrashIcon } from '@heroicon
 import { formatDate } from '@/hooks/formatDate';
 import Swal from 'sweetalert2';
 import { deleteSede } from '@/services/sedesServices';
+import { setShowModal2 } from '@/redux/slices/equiposSlice';
+import { fetchGetEmpresasAsync } from '@/redux/slices/empresasSlice';
 const TableSedes = () => {
 
     const dispatch = useDispatch();
@@ -28,31 +30,33 @@ const TableSedes = () => {
             sedes.slice(activePag.current * sort, (activePag.current + 1) * sort)
         );
     };
-      useEffect(() => {
-    activePag.current = 0;
-    setData(sedes.slice(0 * sort, (0 + 1) * sort));
-      }, [query]);
+    useEffect(() => {
+        activePag.current = 0;
+        setData(sedes.slice(0 * sort, (0 + 1) * sort));
+    }, [query]);
     const onClickDeleteSede = (id) => {
-            Swal.fire({
-              title: "¿Estas seguro?",
-              text: "Una vez eliminado, ¡no podrá recuperar el Empresa!",
-              icon: "warning",
-              showCloseButton: true,
-              showCancelButton: true,
-                confirmButtonColor: "#dc3545",
-              cancelButtonColor:"#000",
-              confirmButtonText: "Eliminar",
-              cancelButtonText: "Cancelar",
-            }).then((res) => {
-              if (res.isConfirmed) {
+        Swal.fire({
+            title: "¿Estas seguro?",
+            text: "Una vez eliminado, ¡no podrá recuperar el Empresa!",
+            icon: "warning",
+            showCloseButton: true,
+            showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#000",
+            confirmButtonText: "Eliminar",
+            cancelButtonText: "Cancelar",
+        }).then((res) => {
+            if (res.isConfirmed) {
                 deleteSede(id).then(() => {
-                  dispatch(fetchGetSedesAsync());
+                    dispatch(fetchGetSedesAsync());
+                    dispatch(fetchGetEmpresasAsync());
                 });
-              }
-            });
-          };
+            }
+        });
+    };
     return (
         <>
+            
             <div className=' my-4 flex justify-end'>
                 <div className="mr-auto md:mr-4 md:w-56">
                     <Input label="Buscar"
@@ -62,7 +66,7 @@ const TableSedes = () => {
             <table className="w-full min-w-[640px] table-auto">
                 <thead>
                     <tr>
-                        {["Nombre", "Código","Ciudad", "Centro Comercial", "Celular", "Equipos", "Dirección", "Nombre Empresa","opciones"].map((el) => (
+                        {["Nombre", "Código", "Ciudad", "Centro Comercial", "Celular", "Dirección", "Nombre Empresa", "opciones"].map((el) => (
                             <th
                                 key={el}
                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -86,7 +90,7 @@ const TableSedes = () => {
                                 }`;
 
                             return (
-                                <tr key={sede.nombre_sede+key}>
+                                <tr key={sede.nombre_sede + key}>
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
                                             {sede.nombre_sede}
@@ -112,11 +116,11 @@ const TableSedes = () => {
                                             {sede.celular}
                                         </Typography>
                                     </td>
-                                    <td className={className}>
+                                    {/* <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
-                                            {sede.equipos[0] == ""?0: sede.equipos.length}
+                                            {sede.equipos[0] == "" ? 0 : sede.equipos.length}
                                         </Typography>
-                                    </td>
+                                    </td> */}
                                     <td className={className}>
                                         <Typography className="text-base font-normal text-blue-gray-600">
                                             {sede.direccion_local}
@@ -127,13 +131,13 @@ const TableSedes = () => {
                                             {sede.nombre_empresa}
                                         </Typography>
                                     </td>
-                                 
-                                   
+
+
                                     <td className={className}>
                                         <Menu >
                                             <MenuHandler className="flex justify-center h-full">
                                                 <div><Button color="indigo" className='p-2 '>   <EllipsisVerticalIcon className=" h-5 w-5 " /></Button>
-                                             </div>
+                                                </div>
                                             </MenuHandler>
                                             <MenuList>
                                                 <MenuItem onClick={() => {
@@ -145,6 +149,7 @@ const TableSedes = () => {
                                                     onClickDeleteSede(sede.id)
                                                 }}>Eliminar</MenuItem>
                                                 <MenuItem onClick={() => {
+                                                    dispatch(setShowModal2({status:true, sede:sede }))
                                                     // onClickDeleteEmpresa(empresa.id)
                                                 }}>Ver equipos</MenuItem>
                                             </MenuList>

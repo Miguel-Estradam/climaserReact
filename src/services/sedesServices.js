@@ -37,7 +37,7 @@ export const createSede = async (sede) => {
 export const getSedes = async () => {
     try {
         const response = await axios.get(API_URL + "/sedes");
-        console.log("sedes", response.data)
+        // console.log("sedes", response.data)
         if (response.data.length > 0) {
             const data = []
             response.data.map((sede, index) => {
@@ -57,23 +57,26 @@ export const getSedes = async () => {
 
 export const sedesForProveedor = async (arrayIds) => {
     try {
-        let sedes = []
-        arrayIds.map(id => {
-            const sede = getSede(id)
-            if (sede) sedes.push(sede)
-        })
-        return sedes
+        const sedes = await Promise.all(arrayIds.map(async (sedeSe) => {
+            return await getSede(sedeSe.id);
+        }));
+        console.log("proveedor sedes", sedes);
+        return sedes;
     } catch (error) {
-        console.log(error)
-        return []
+        console.error(error);
+        return [];
     }
-}
+};
 
 // Obtener una sede por ID
 export const getSede = async (id) => {
     try {
         const response = await axios.get(`${API_URL + "/sedes"}/${id}`);
-        return response.data;
+        if(!response.data) return {}
+        const sede = response.data
+           sede.equipos = typeof sede.equipos == 'string' ? sede.equipos.split(",") : sede.equipos
+           console.log(sede)
+        return sede;
     } catch (error) {
         console.error('Error fetching sede', error);
         throw error;
@@ -122,6 +125,8 @@ export const deleteSede = async (id) => {
         return response.data;
     } catch (error) {
         console.error('Error deleting sede', error);
+        
+        showError(`${error?.response.data.detail}`)
         throw error;
     }
 }

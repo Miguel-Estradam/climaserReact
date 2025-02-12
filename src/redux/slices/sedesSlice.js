@@ -1,5 +1,5 @@
 
-import { createSede, getSedes, updateSede } from '@/services/sedesServices';
+import { createSede, getSedes, sedesForProveedor, updateSede } from '@/services/sedesServices';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Estado inicial para manejar las cuentas
@@ -30,11 +30,18 @@ export const fetchAddSedeAsync = createAsyncThunk("auth/fetchAddSedeAsync", asyn
 
 export const fetchGetSedesAsync = createAsyncThunk(
   "Sedes/fetchGetSedesAsync",
-  async (forceFetch) => {
-    const response = await getSedes();
+  async (sedes) => {
+    // console.log("sedessss",sedes)
+    if (sedes) {
+      const response = await sedesForProveedor(sedes);
+      return response;
+    } else {
+      const response = await getSedes();
+      return response;
+    }
     // console.log(response)
     // setCacheValue("Sedess", response, 5);
-    return response;
+
   }
 );
 
