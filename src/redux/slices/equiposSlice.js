@@ -108,7 +108,7 @@ export const EquiposSlice = createSlice({
 export const { setFormAction, setEquipoToEdit, setShowModal, setShowModal2 } =
   EquiposSlice.actions;
 // Definición de selectores
-export const getSedeFields = (state) => {
+export const getEquiposFields = (state) => {
   return {
     marca: state.equipo.equipo.marca,
     modelo: state.equipo.equipo.modelo,
@@ -118,6 +118,10 @@ export const getSedeFields = (state) => {
     capacidad: state.equipo.equipo.capacidad,
     tipo_refrigerante: state.equipo.equipo.tipo_refrigerante,
     observaciones: state.equipo.equipo.observaciones,
+    consumo_electrico: state.equipo.equipo.consumo_electrico,
+    voltaje: state.equipo.equipo.voltaje,
+    ubicacion: state.equipo.equipo.ubicacion,
+    fase: state.equipo.equipo.fase,
     sede_id: state.equipo.equipo.sede_id,
   };
 };
