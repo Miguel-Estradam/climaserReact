@@ -268,11 +268,18 @@ const EmpresaModal = () => {
                   </div> */}
                 </div>
 
-                <div className="col-span-2 flex justify-center">
+                <div className="col-span-2 flex gap-2 justify-center">
+            
+
+                  <Button
+                    className="w-1/2" color="red" type="button"
+                    onClick={() => dispatch(setShowModal(false))}
+                  >
+                    Cancelar
+                  </Button>
                   <Button
                     type="submit"
-                    className="text-base bg-secondary hover:bg-blue-800 text-white py-1 px-6 mx-3 hover:rounded-full"
-                    disabled={isSubmitting}
+                    className="w-1/2" color="indigo" disabled={isSubmitting}
                   >
                     {formAction === "update" ? "Actualizar" : "Guardar"}
                     {statusModal === "loading" && (
@@ -281,14 +288,6 @@ const EmpresaModal = () => {
                         <span className="sr-only">Loading...</span>
                       </>
                     )}
-                  </Button>
-
-                  <Button
-                    className="text-base hover:bg-red-600 hover:text-white px-6 py-1 hover:rounded-full mx-3"
-                    type="button"
-                    onClick={() => dispatch(setShowModal(false))}
-                  >
-                    Cancelar
                   </Button>
                 </div>
                 <div className="col-span-2 flex justify-center">

@@ -37,7 +37,6 @@ export const fetchAddEquipoAsync = createAsyncThunk("equipo/fetchAddEquipoAsync"
 export const fetchGetEquiposAsync = createAsyncThunk(
   "Equipos/fetchGetEquiposAsync",
   async ({id}) => {
-   
     console.log("entro---",id)
     if (id && id != "") {
       const response = await getEquipos(id);

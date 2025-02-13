@@ -27,7 +27,7 @@ const EquiposList = () => {
             {<div className={`${ show ? "fixed":"hidden"}  z-50 flex p-4 justify-center items-center top-0 left-0 h-full min-h-screen w-full`}>
                 <div className='absolute w-full h-full top-0 left-0 bg-black opacity-25'></div>
                 <Card className='relative z-10 bg-white w-full max-w-4xl h-auto max-h-[90%] p-4'>
-                    <CardHeader variant="gradient" color="indigo" className="mb-8 p-6 flex justify-between items-center">
+                    <CardHeader variant="gradient" color="indigo" className="mb-8 p-6 flex justify-between gap-2 items-center">
                         <Typography className="text-2xl" variant="h6" color="white">
                            Equipos de {sede && sede.nombre_sede +" "+sede.direccion_local}
                         </Typography>

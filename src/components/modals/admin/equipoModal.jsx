@@ -3,15 +3,17 @@ import React from "react";
 import * as Yup from "yup";
 import { Button, Dialog, DialogBody, DialogHeader, Input, Menu, MenuHandler, MenuItem, MenuList, Textarea } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
-import { setShowModal, getShowModal, getFormAction, setFormAction, getEquiposFields } from "@/redux/slices/equiposSlice";
+import { setShowModal, getShowModal, getFormAction, setFormAction, getEquiposFields, getStatusModal, fetchGetEquiposAsync, fetchAddEquipoAsync } from "@/redux/slices/equiposSlice";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 
 const EquipoModal = () => {
   const dispatch = useDispatch();
   const show = useSelector(getShowModal);
   const formAction = useSelector(getFormAction);
-    const equipoFields = useSelector(getEquiposFields);
+  const equipoFields = useSelector(getEquiposFields);
   const sede = useSelector((state) => state.equipo.sede);
+
+  const statusModal = useSelector(getStatusModal);
 
   const validationSchema = Yup.object().shape({
     marca: Yup.string().required("El campo marca es obligatorio"),
@@ -28,8 +30,8 @@ const EquipoModal = () => {
     ubicacion: Yup.string().required("El campo ubicacion es obligatorio"),
     sede_id: Yup.string().required("El campo sede es obligatorio"),
   });
- 
-  
+
+
   const handleOpen = () => dispatch(setShowModal(!show));
   const initialValues = formAction === "update" ? equipoFields : {
     marca: "",
@@ -40,11 +42,11 @@ const EquipoModal = () => {
     capacidad: "",
     tipo_refrigerante: "",
     observaciones: "",
-    consumo_electrico:"",
-    fase:"",
-    voltaje:"",
-    ubicacion:"",
-    sede_id: sede.id,
+    consumo_electrico: "",
+    fase: "",
+    voltaje: "",
+    ubicacion: "",
+    sede_id: sede ? sede.id : '',
   };
 
   return (
@@ -59,11 +61,11 @@ const EquipoModal = () => {
             dispatch(setFormAction("add"));
           }}>Crear Equipo</MenuItem>
           <MenuItem onClick={() => {
-            // dispatch(fetchGetEmpresasAsync(true));
+            dispatch(fetchGetEquiposAsync());
           }}>Actualizar</MenuItem>
         </MenuList>
       </Menu>
-      <Dialog size="xs" open={show} handler={handleOpen}>
+      <Dialog size="xs" open={show} handler={handleOpen} className=" max-h-[90vh] overflow-hidden ">
         <DialogHeader color="indigo">
           {formAction === "update" ? "Actualizar" : "Crear nuevo"} equipo
         </DialogHeader>
@@ -71,9 +73,14 @@ const EquipoModal = () => {
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
-            onSubmit={(values) => {
-              console.log(values);
-              dispatch(setShowModal(false));
+            onSubmit={async (values) => {
+              console.log(values)
+              dispatch(fetchAddEquipoAsync({ ...values })).then(() => {
+
+                dispatch(fetchGetEquiposAsync());
+              }).catch((err) => {
+                showError('Error al crear la sede')
+              });
             }}
           >
             {({
@@ -85,10 +92,10 @@ const EquipoModal = () => {
               isSubmitting,
               setFieldValue,
               submitCount, }) => (
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
+              <form className="grid grid-cols-2 gap-4 overflow-y-scroll  max-h-[80vh]  bg-red-2 00" onSubmit={handleSubmit}>
 
                 {/* Marca equipo */}
-                <div className="col-span-1 input-group mb-2">
+                <div className="col-span-2 lg:col-span-1 input-group mb-2 h-auto  ">
                   <label className=" font-medium text-principal" htmlFor="">Marca</label>
                   <Input
                     type="text"
@@ -103,7 +110,7 @@ const EquipoModal = () => {
                   </div>
                 </div>
                 {/* Modelo equipo */}
-                <div className="col-span-1 input-group mb-2">
+                <div className="col-span-2 lg:col-span-1 input-group mb-2">
                   <label className=" font-medium text-principal" htmlFor="">Modelo</label>
                   <Input
                     type="text"
@@ -118,7 +125,7 @@ const EquipoModal = () => {
                   </div>
                 </div>
                 {/* Modelo condensador equipo */}
-                <div className="col-span-1 input-group mb-2">
+                <div className="col-span-2 lg:col-span-1 input-group mb-2">
                   <label className=" font-medium text-principal" htmlFor="">Modelo del condensador</label>
                   <Input
                     type="text"
@@ -133,7 +140,7 @@ const EquipoModal = () => {
                   </div>
                 </div>
                 {/* Serie equipo */}
-                <div className="col-span-1 input-group mb-2">
+                <div className="col-span-2 lg:col-span-1 input-group mb-2">
                   <label className=" font-medium text-principal" htmlFor="">Serie</label>
                   <Input
                     type="text"
@@ -147,8 +154,8 @@ const EquipoModal = () => {
                     {errors.serie && submitCount > 0 && errors.serie}
                   </div>
                 </div>
-                   {/* Tipo equipo */}
-                <div className="col-span-1 input-group mb-2">
+                {/* Tipo equipo */}
+                <div className="col-span-2 lg:col-span-1 input-group mb-2">
                   <label className=" font-medium text-principal" htmlFor="">Tipo de refrigerante</label>
                   <Input
                     type="text"
@@ -162,8 +169,8 @@ const EquipoModal = () => {
                     {errors.tipo && submitCount > 0 && errors.tipo}
                   </div>
                 </div>
-                   {/* Consumo eléctrico (AMP)*/}
-                <div className="col-span-1 input-group mb-2">
+                {/* Consumo eléctrico (AMP)*/}
+                <div className="col-span-2 lg:col-span-1 input-group mb-2">
                   <label className=" font-medium text-principal" htmlFor="">Consumo eléctrico (AMP)</label>
                   <Input
                     type="text"
@@ -177,11 +184,11 @@ const EquipoModal = () => {
                     {errors.consumo_electrico && submitCount > 0 && errors.consumo_electrico}
                   </div>
                 </div>
-                   {/* Capacidad (btu/h) equipo */}
-                <div className="col-span-1 input-group mb-2">
+                {/* Capacidad (btu/h) equipo */}
+                <div className="col-span-2 lg:col-span-1 input-group mb-2">
                   <label className=" font-medium text-principal" htmlFor="">Capacidad (btu/h)</label>
                   <Input
-                    type="text"
+                    type="number"
                     className={`form-control w-full ${values.capacidad && errors.capacidad ? "is-invalid" : "is-valid"}`}
                     name="capacidad"
                     onChange={handleChange}
@@ -192,11 +199,11 @@ const EquipoModal = () => {
                     {errors.capacidad && submitCount > 0 && errors.capacidad}
                   </div>
                 </div>
-                 {/* Capacidad (btu/h) equipo */}
-                 <div className="col-span-1 input-group mb-2">
+                {/* Capacidad (btu/h) equipo */}
+                <div className="col-span-2 lg:col-span-1 input-group mb-2">
                   <label className=" font-medium text-principal" htmlFor="">Fase (PH)</label>
                   <Input
-                    type="text"
+                    type="number"
                     className={`form-control w-full ${values.fase && errors.fase ? "is-invalid" : "is-valid"}`}
                     name="fase"
                     onChange={handleChange}
@@ -207,8 +214,8 @@ const EquipoModal = () => {
                     {errors.fase && submitCount > 0 && errors.fase}
                   </div>
                 </div>
-                 {/* Capacidad (btu/h) equipo */}
-                 <div className="col-span-1 input-group mb-2">
+                {/* Capacidad (btu/h) equipo */}
+                <div className="col-span-2 lg:col-span-1 input-group mb-2">
                   <label className=" font-medium text-principal" htmlFor="">Voltaje (UV)</label>
                   <Input
                     type="number"
@@ -222,8 +229,8 @@ const EquipoModal = () => {
                     {errors.voltaje && submitCount > 0 && errors.voltaje}
                   </div>
                 </div>
-                 {/* Capacidad (btu/h) equipo */}
-                 <div className="col-span-1 input-group mb-2">
+                {/* Capacidad (btu/h) equipo */}
+                <div className="col-span-2 lg:col-span-1 input-group mb-2">
                   <label className=" font-medium text-principal" htmlFor="">Ubicación equipo</label>
                   <Input
                     type="text"
@@ -237,9 +244,9 @@ const EquipoModal = () => {
                     {errors.ubicacion && submitCount > 0 && errors.ubicacion}
                   </div>
                 </div>
-                 {/* Capacidad (btu/h) equipo */}
-                 <div className="col-span-2 input-group mb-2">
-                  <label className=" font-medium text-principal" htmlFor="">Ubicación equipo</label>
+                {/* Capacidad (btu/h) equipo */}
+                <div className="col-span-2 input-group mb-2">
+                  <label className=" font-medium text-principal" htmlFor="">Observaciones</label>
                   <Textarea
                     className={`form-control w-full ${values.observaciones && errors.observaciones ? "is-invalid" : "is-valid"}`}
                     name="observaciones"
@@ -267,9 +274,29 @@ const EquipoModal = () => {
                     )}
                   </div>
                 ))} */}
-               <div className="col-span-2 flex justify-end ">
-               <Button className="w-1/2" type="submit" color="indigo">Guardar</Button>
-               </div>
+                <div className="col-span-2 flex gap-2 justify-center">
+                  <Button
+                    className="w-1/2" color="red"
+                    type="button"
+                    onClick={() => dispatch(setShowModal(false))}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="w-1/2" color="indigo"
+                    disabled={isSubmitting}
+                  >
+                    {formAction === "update" ? "Actualizar" : "Guardar"}
+                    {statusModal === "loading" && (
+                      <>
+                        <i className="fa fa-cog fa-spin fa-fw" />
+                        <span className="sr-only">Loading...</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
+
               </form>
             )}
           </Formik>
